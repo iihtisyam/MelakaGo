@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:melakago/views/home_view.dart';
 //import 'package:melakago_web/views/home/homePageView_Web_BSDC.dart';
 import '../Model/appUser.dart';
+import 'SignUp.dart';
 //import 'home/homePageView_Web_SA.dart';
 //import 'home/homePageView_Web_TAC.dart';
 //import 'home/home_view.dart';
@@ -244,6 +245,26 @@ class _LoginScreenState extends State<signIn> {
                     style: TextStyle(fontSize: 18.0,
                         fontWeight: FontWeight.bold, color: Colors.white)),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => signUp()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.lightGreen.shade700,
+                ),
+                child: const Text(
+                  'Sign Up',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+
             ],
           ),
         ),
