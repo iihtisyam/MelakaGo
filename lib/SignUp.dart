@@ -330,10 +330,10 @@ class _signUpState extends State<signUp> {
           child:Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children:[
-              SizedBox(height: 80),
+              SizedBox(height: 40),
               Text("Lets Become a MelakaGoer !",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35)),
-              SizedBox(height: 30),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+              SizedBox(height: 15),
               /*Image.network('https://img.fkkkkreepik.com/premium-vector/vector-'
                   'famosa-malacca-historical-city_942441-43.jpg?w=740',
                 width: 200,
@@ -345,17 +345,17 @@ class _signUpState extends State<signUp> {
               ClipOval(
                 child: Image.asset(
                   'assets/MelakaGo.png',
-                  width: 200,
-                  height: 200,
+                  width: 50,
+                  height: 50,
                   fit: BoxFit.cover, // This ensures that the image covers the circular area
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 300.0, // Set the width to the desired value
+                    width: 150.0, // Set the width to the desired value
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
@@ -386,7 +386,7 @@ class _signUpState extends State<signUp> {
                     ),
                   ),
                   Container(
-                    width: 300.0,
+                    width: 150.0,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
@@ -419,7 +419,7 @@ class _signUpState extends State<signUp> {
                 ],
               ),
               Container(
-                width: 600.0,
+                width: 300.0,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -453,7 +453,7 @@ class _signUpState extends State<signUp> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 300,
+                    width: 150,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
@@ -496,7 +496,7 @@ class _signUpState extends State<signUp> {
                     ),
                   ),
                   Container(
-                    width: 300,
+                    width: 150,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
@@ -542,7 +542,7 @@ class _signUpState extends State<signUp> {
                 ],
               ),
               Container(
-                width:600,
+                width:300,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -573,7 +573,7 @@ class _signUpState extends State<signUp> {
                 ),
               ),
               Container(
-                width: 600.0,
+                width: 300.0,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
@@ -604,7 +604,7 @@ class _signUpState extends State<signUp> {
                 ),
               ),
               Container(
-                width: 600.0,
+                width: 300.0,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
