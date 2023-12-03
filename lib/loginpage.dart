@@ -57,7 +57,7 @@ class _LoginScreenState extends State<signIn> {
           phoneNumber,email, password, accessStatus,
           country, roleId);
 
-      if (await user.checkAdminExistence()){
+      if (await user.checkTouristExistence()){
         setState(() {
           emailController.clear();
           passwordController.clear();

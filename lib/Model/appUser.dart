@@ -73,12 +73,12 @@ class appUser {
     }
   }
 
-  Future<bool> checkAdminExistence() async {
+  Future<bool> checkTouristExistence() async {
     RequestController req = RequestController(path: "/api/appUserCheckExistence.php");
     req.setBody(toJson());
     await req.post();
     print('Json Data: ${req.result()}');
-    if (req.status() == 200) {
+    if (req.status() == 200)  {
       appUserId=req.result()['appUserId'];
       firstName=req.result()['firstName'];
       lastName=req.result()['lastName'];
