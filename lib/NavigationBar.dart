@@ -9,56 +9,59 @@ class NavigationBarsMobile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.lightGreen.shade700,
-      height: 100,
-      padding: EdgeInsets.symmetric(horizontal: 20), // Adjust as needed
+      height: 80,
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           ClipOval(
             child: Image.asset(
               'assets/MelakaGo.png',
-              width: 80,
-              height: 80,
+              width: 40,
+              height: 40,
               fit: BoxFit.cover,
             ),
           ),
-          Text(
-            'Welcome to MelakaGo',
-            style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(
+              'Welcome to MelakaGo',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              TextButton(onPressed:(){
-
-              }, style: TextButton.styleFrom(
-                primary: Colors.black, // text color
-              ),
-                child:
-                Text('About Us',style:
-                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
-              SizedBox(width: 60),
-              TextButton(onPressed:(){
-
-              },style: TextButton.styleFrom(
-                primary: Colors.black, // text color
-              ),
-                child:
-                Text('Sign In',style:
-                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
-              SizedBox(width: 60),
-              TextButton(onPressed:(){
-              },style: TextButton.styleFrom(
-                primary: Colors.black, // text color
-              ),
-                child:
-                Text('Sign Up',style:
-                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
-              SizedBox(width: 60),
-
+              NavigationButton('About Us'),
+              NavigationButton('Sign In'),
+              NavigationButton('Sign Up'),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class NavigationButton extends StatelessWidget {
+  final String text;
+
+  NavigationButton(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      child: TextButton(
+        onPressed: () {
+          // Add your onPressed logic here
+        },
+        style: TextButton.styleFrom(
+          primary: Colors.black,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

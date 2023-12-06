@@ -28,7 +28,7 @@ class appUser {
       );
 
   appUser.fromJson(Map<String, dynamic> json)
-      : appUserId = json['appUserId'] as dynamic,
+      : appUserId = json['appUserId'] as int,
         firstName = json['firstName'] as String,
         lastName = json['lastName'] as String,
         nickName = json['nickName'] as String,
@@ -38,7 +38,7 @@ class appUser {
         password = json['password'] as String,
         accessStatus = json['accessStatus'] as String,
         country = json['country'] as String,
-        roleId = json['roleId'] as dynamic;
+        roleId = json['roleId'] as int;
 
   //toJson will be automatically called by jsonEncode when necessary
   Map<String, dynamic> toJson() => {
@@ -79,23 +79,28 @@ class appUser {
     await req.post();
     print('Json Data: ${req.result()}');
     if (req.status() == 200)  {
-      appUserId=req.result()['appUserId'];
-      firstName=req.result()['firstName'];
-      lastName=req.result()['lastName'];
-      nickName=req.result()['nickName'];
-      dateOfBirth=req.result()['dateOfBirth'];
-      phoneNumber=req.result()['phoneNumber'];
-      email=req.result()['email'];
-      password=req.result()['password'];
-      country=req.result()['country'];
-      accessStatus=req.result()['accessStatus'];
-      roleId=req.result()['roleId'];
+      Map<String, dynamic> result = req.result();
+
+      // Ensure that the fields are converted to the expected types
+      appUserId = int.parse(result['appUserId'].toString());
+      roleId = int.parse(result['roleId'].toString());
+
+      firstName = result['firstName'].toString();
+      lastName = result['lastName'].toString();
+      nickName = result['nickName'].toString();
+      dateOfBirth = result['dateOfBirth'].toString();
+      phoneNumber = result['phoneNumber'].toString();
+      email = result['email'].toString();
+      password = result['password'].toString();
+      country = result['country'].toString();
+      accessStatus = result['accessStatus'].toString();
+
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
+
 
 
   Future<bool> deleteUser() async {

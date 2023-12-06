@@ -33,7 +33,7 @@ class _LoginScreenState extends State<signIn> {
       isPasswordVisible = !isPasswordVisible;
     });
   }
-  void _checkAdmin() async{
+  void _checkUser() async{
 
     final List<appUser> admin= [];
 
@@ -64,6 +64,7 @@ class _LoginScreenState extends State<signIn> {
         });
 
         _showMessage("LogIn Successful");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeView(user:user)));
 
       }
       else{
@@ -224,7 +225,7 @@ class _LoginScreenState extends State<signIn> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomeView(),
+                      builder: (context) => HomeView(user: user),
                     ),
                   );
                 },
@@ -237,7 +238,7 @@ class _LoginScreenState extends State<signIn> {
               ),
               SizedBox(height: 5), // Add some spacing
               ElevatedButton(
-                onPressed: _checkAdmin,
+                onPressed: _checkUser,
                 style: ElevatedButton.styleFrom(
                   primary: Colors.lightGreen.shade700, // Set your desired background color here
                 ),
