@@ -28,12 +28,12 @@ class _quizPageState extends State<quizPage> {
   String answerOption4='';
   String correctAnswer='';
   int point=0;
-  int qrId=0;
+  int qrId = 0;
 
   final List<quizQuestion> quiz =[];
 
   void QuizQuestion() async{
-    //qrId = qrCode;
+    qrId = qrCode;
     quizQuestion question = quizQuestion(questionId, questionText, answerOption1,
         answerOption2, answerOption3, answerOption4, correctAnswer, point, qrId);
 
@@ -72,7 +72,7 @@ class _quizPageState extends State<quizPage> {
             final question = quiz[index];
             return Card(
               child: ListTile(
-                title: Text(question.questionText),
+                title: Text(question.questionText!),
             subtitle: Text('Options: ${question.answerOption1},'
             ' ${question.answerOption2}, ${question.answerOption3},'
                 ' ${question.answerOption4}'),

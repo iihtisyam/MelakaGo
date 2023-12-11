@@ -22,6 +22,7 @@ class QrScanner extends StatefulWidget {
 
 class _QrScannerState extends State<QrScanner> {
   String barcodeScanRes = '';
+  int qrCode = 0;
 
   Future<void> scanBarcodeNormal() async {
     try {
@@ -29,7 +30,7 @@ class _QrScannerState extends State<QrScanner> {
           '#ff6666', 'Cancel', true, ScanMode.QR);
       debugPrint(barcodeScanRes);
 
-      int qrCode = int.tryParse(barcodeScanRes) ?? 0;
+      qrCode = int.parse(barcodeScanRes);
 
       // Pass the result to another class
       Navigator.push(
@@ -70,7 +71,7 @@ class _QrScannerState extends State<QrScanner> {
                 onPressed: scanBarcodeNormal,
                 child: const Text('Scan Your QR'),
               ),
-              SizedBox(height: 20),
+
             ],
           ),
         ),

@@ -2,15 +2,15 @@ import '../Controller/request_controller.dart';
 
 class quizQuestion{
 
-  int questionId;
-  String questionText;
-  String answerOption1;
-  String answerOption2;
-  String answerOption3;
-  String answerOption4;
-  String correctAnswer;
-  int point;
-  int qrId;
+  int? questionId;
+  String? questionText;
+  String? answerOption1;
+  String? answerOption2;
+  String? answerOption3;
+  String? answerOption4;
+  String? correctAnswer;
+  int? point;
+  int? qrId;
 
   quizQuestion(
       this.questionId,
@@ -25,23 +25,21 @@ class quizQuestion{
       );
 
   quizQuestion.fromJson(Map<String, dynamic>json)
-      : questionId = json['questionId'] as dynamic,
-        questionText = json['questionText'] as String,
-        answerOption1 = json['answerOption1'] as String,
-        answerOption2 = json['answerOption2'] as String,
-        answerOption3 = json['answerOption3'] as String,
-        answerOption4 = json['answerOption4'] as String,
-        correctAnswer = json['correctAnswer'] as String,
-        point = json['point'] as dynamic,
-        qrId = json['qrId'] as dynamic;
+      : questionId = json['questionId'] is int ? json['questionId'] as int : null,
+        questionText = json['questionText'] as String? ??"",
+        answerOption1 = json['answerOption1'] as String? ??"",
+        answerOption2 = json['answerOption2'] as String? ??"",
+        answerOption3 = json['answerOption3'] as String? ??"",
+        answerOption4 = json['answerOption4'] as String? ??"",
+        correctAnswer = json['correctAnswer'] as String? ??"",
+        point = json['point'] is int ? json['point'] as int : null,
+        qrId = json['qrId'] is int ? json['qrId'] as int : null;
 
   //toJson will be automatically called by jsonEncode when necessary
   Map<String, dynamic> toJson() =>{
     'questionId': questionId,
     'questionText': questionText,
     'answerOption1': answerOption1,
-    'answerOption2': answerOption2,
-    'answerOption3': answerOption3,
     'answerOption4': answerOption4,
     'correctAnswer': correctAnswer,
     'point': point,
@@ -87,8 +85,8 @@ class quizQuestion{
     req.setBody(toJson());
     await req.post();
     if (req.status() == 200 && req.result() != null) {
-      for (var item in req.result()['questions']) {
-        result.add(quizQuestion.fromJson(item) as quizQuestion);
+      for (var item in req.result()) {
+        result.add(quizQuestion.fromJson(item));
       }
     }
     return result;
