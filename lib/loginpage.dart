@@ -64,7 +64,7 @@ class _LoginScreenState extends State<signIn> {
         });
 
         _showMessage("LogIn Successful");
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeView(user:user)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>ExplorePage(user:user)));
 
       }
       else{
@@ -225,7 +225,7 @@ class _LoginScreenState extends State<signIn> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomeView(user: user),
+                      builder: (context) =>ExplorePage(user: user),
                     ),
                   );
                 },

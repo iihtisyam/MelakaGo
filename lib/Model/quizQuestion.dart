@@ -2,15 +2,15 @@ import '../Controller/request_controller.dart';
 
 class quizQuestion{
 
-  int? questionId;
-  String? questionText;
-  String? answerOption1;
-  String? answerOption2;
-  String? answerOption3;
-  String? answerOption4;
-  String? correctAnswer;
-  int? point;
-  int? qrId;
+  int questionId;
+  String questionText;
+  String answerOption1;
+  String answerOption2;
+  String answerOption3;
+  String answerOption4;
+  String correctAnswer;
+  int point;
+  int qrId;
 
   quizQuestion(
       this.questionId,
@@ -79,6 +79,21 @@ class quizQuestion{
       return false;
     }
   }
+
+  Future<List<quizQuestion>> loadQuestion() async{
+    List<quizQuestion> result = [];
+    RequestController req =
+        RequestController(path: "/api/quizquestion.php");
+    req.setBody(toJson());
+    await req.post();
+    if (req.status() == 200 && req.result() != null) {
+      for (var item in req.result()['questions']) {
+        result.add(quizQuestion.fromJson(item) as quizQuestion);
+      }
+    }
+    return result;
+  }
+
 
 
 }
