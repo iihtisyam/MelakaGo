@@ -1,10 +1,12 @@
+
 import 'package:flutter/material.dart';
 
 import '../Model/appUser.dart';
+import '../qr_scanner.dart';
 
 /*void main() {
   runApp(ExplorePage(username: ''));
-}*/
+*/
 
 /*class MyApp extends StatelessWidget {
   @override
@@ -47,6 +49,8 @@ class ExplorePage extends StatelessWidget {
 
             // Explore on Map Button
             _buildExploreOnMapButton(),
+
+            _buildScanQr(context),
           ],
         ),
       ),
@@ -143,9 +147,9 @@ class ExplorePage extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildNearbyPlaceCard('Local Park', 'assets/park.jpg'),
-          _buildNearbyPlaceCard('Museum', 'assets/museum.jpg'),
-          _buildNearbyPlaceCard('Shopping Mall', 'assets/shopping_mall.jpg'),
+          _buildNearbyPlaceCard('Local Park', 'assets/MelakaGo.png'),
+          _buildNearbyPlaceCard('Museum', 'assets/MelakaGo.png'),
+          _buildNearbyPlaceCard('Shopping Mall', 'assets/MelakaGo.png'),
         ],
       ),
     );
@@ -187,6 +191,19 @@ class ExplorePage extends StatelessWidget {
           // Navigator.push(context, MaterialPageRoute(builder: (context) => MapScreen()));
         },
         child: Text('Explore on Map'),
+      ),
+    );
+  }
+
+  Widget _buildScanQr(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        onPressed: () {
+          // Add logic to navigate to the map screen
+          Navigator.push(context, MaterialPageRoute(builder: (context) => QrScanner(user: user,)));
+        },
+        child: Text('Get Your Quiz Here'),
       ),
     );
   }

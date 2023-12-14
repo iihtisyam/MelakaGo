@@ -21,7 +21,9 @@ class RequestController {
 
   Future<void>post() async{
     _res = await http.post(
-      Uri.parse(server + path), headers: _headers, body: jsonEncode(_body),
+      Uri.parse(server + path),
+      headers: _headers,
+      body: jsonEncode(_body),
     );
     _parseResult();
   }

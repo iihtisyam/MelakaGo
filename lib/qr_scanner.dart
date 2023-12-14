@@ -5,16 +5,17 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:melakago/Model/appUser.dart';
 import 'package:melakago/quizpage.dart';
 
-void main() {
+/*void main() {
   runApp(MaterialApp(
-    home: const QrScanner(),
+    home: QrScanner({required this.user}),
   ));
-}
+}*/
 
 class QrScanner extends StatefulWidget {
-  const QrScanner({Key? key}) : super(key: key);
+  const QrScanner({Key? key, required appUser user}) : super(key: key);
 
   @override
   State<QrScanner> createState() => _QrScannerState();
