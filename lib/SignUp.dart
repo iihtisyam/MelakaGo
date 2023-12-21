@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:melakago/loginpage.dart';
+import 'package:melakago/views/loginpage.dart';
 
 import '../Model/appUser.dart';
 //import 'login.dart';

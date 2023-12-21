@@ -1,26 +1,38 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:melakago/Model/appUser.dart';
+import 'package:melakago/qr_scanner.dart';
 
-import 'Model/quizQuestion.dart';
+import '../Model/quizQuestion.dart';
+import '../Model/touristQuizSession.dart';
 
 class quizPage extends StatefulWidget {
-  final int qrCode;
+  late int qrCode;
+  late appUser user;
 
-  const quizPage({Key? key, required this.qrCode}) : super(key: key);
+  quizPage({Key? key, required this.qrCode, required appUser user}) : super(key: key){
+    this.qrCode=qrCode;
+    this.user=user;
+  }
 
   @override
-  State<quizPage> createState() => _quizPageState(qrCode);
+  State<quizPage> createState() => _quizPageState();
 }
 
 class _quizPageState extends State<quizPage> {
+
   int questionIndex = 0;
   int score = 0;
   int secondsRemaining = 30;
   late Timer timer;
+  int currentQuestionPoints = 0;
+  int totalPointQuiz=0;
 
-  final int qrCode;
+  DateTime WholeStartTime=DateTime.now();
+  DateTime startTime = DateTime.now();
+  DateTime endTime = DateTime.now();
+  DateTime WholeEndTime = DateTime.now();
 
-  _quizPageState(this.qrCode);
 
   int questionId = 0;
   String questionText = '';
@@ -29,13 +41,13 @@ class _quizPageState extends State<quizPage> {
   String answerOption3 = '';
   String answerOption4 = '';
   String correctAnswer = '';
-  int points = 0;
+  int point = 0;
   int qrId = 0;
 
   final List<quizQuestion> quiz = [];
 
   void QuizQuestion() async {
-    qrId = qrCode;
+    qrId = widget.qrCode;
     quizQuestion question = quizQuestion(
       questionId,
       questionText,
@@ -44,7 +56,7 @@ class _quizPageState extends State<quizPage> {
       answerOption3,
       answerOption4,
       correctAnswer,
-      points,
+      point,
       qrId,
     );
 
@@ -56,10 +68,14 @@ class _quizPageState extends State<quizPage> {
       print("QUIZ: ${quiz[1].point}");
       print("QRID: ${quiz[1].qrId}");
       print("4: ${quiz[1].answerOption4}");
+
+      //set the current question's points
+      currentQuestionPoints = quiz[questionIndex].point ?? 0;
     });
   }
 
   void startTimer() {
+    startTime = DateTime.now();
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         if (secondsRemaining > 0) {
@@ -81,17 +97,24 @@ class _quizPageState extends State<quizPage> {
         startTimer(); // Start the timer for the new question
       } else {
         // If all questions are answered, show the score
+        endTime = DateTime.now();
         timer.cancel();
         _showScoreDialog();
       }
     });
   }
 
+  int getTimeTakenInSeconds() {
+    return endTime.difference(startTime).inSeconds;
+  }
+
+
   void answerQuestion(String selectedAnswer) {
     setState(() {
       timer.cancel(); // Stop the timer when an answer is selected
       if (selectedAnswer == quiz[questionIndex].correctAnswer) {
         score++;
+        totalPointQuiz += quiz[questionIndex].point!;
       }
 
       moveToNextQuestion();
@@ -99,15 +122,34 @@ class _quizPageState extends State<quizPage> {
   }
 
   void _showScoreDialog() {
+
+    int timeTaken = getTimeTakenInSeconds();
+    WholeEndTime = DateTime.now();
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text('Quiz Completed'),
-          content: Text('Your Score: $score out of ${quiz.length}'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Your Score: $score out of ${quiz.length}'),
+              SizedBox(height: 8),
+              Text('Time Taken: $timeTaken seconds'),
+              SizedBox(height: 8),
+              Text('Your Total Points: $totalPointQuiz'),
+              SizedBox(height: 8),
+              Text('Start Time: $WholeStartTime'),
+              SizedBox(height: 8),
+              Text('End Time: $WholeEndTime'),
+
+            ],
+          ),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 // Reset the quiz
                 Navigator.pop(context);
                 setState(() {
@@ -115,9 +157,38 @@ class _quizPageState extends State<quizPage> {
                   score = 0;
                   secondsRemaining = 30;
                 });
+
                 startTimer(); // Start the timer for the first question
+
+                // Check if all questions have been answered
+
+                  // Calculate endTime or get it from your logic
+
+
+                  // Get appUserId from your user object or other logic
+                  int appUserId = widget.user.appUserId;
+
+                  // Create a touristQuizSession instance and submit data to the database
+
+                 /* await touristQuizSession(
+                    startTime: startTime,
+                    endTime: endTime,
+                    totalPoints: score,
+                    appUserId: appUserId,
+                  ).submitQuizSession();*/
+
+                  touristQuizSession quizSession = touristQuizSession(startTime: WholeStartTime, endTime: WholeEndTime, totalPoints: totalPointQuiz, appUserId: appUserId);
+
+                  if(await quizSession.submitQuizSession()){
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QrScanner(user: widget.user)));
+
+                  }
+
+
+
               },
-              child: Text('Restart Quiz'),
+              child: Text('Done'),
             ),
           ],
         );

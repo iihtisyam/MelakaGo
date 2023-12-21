@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:melakago/Model/appUser.dart';
-import 'package:melakago/quizpage.dart';
+import 'package:melakago/views/quizpage.dart';
 
 /*void main() {
   runApp(MaterialApp(
@@ -15,7 +15,9 @@ import 'package:melakago/quizpage.dart';
 }*/
 
 class QrScanner extends StatefulWidget {
-  const QrScanner({Key? key, required appUser user}) : super(key: key);
+  const QrScanner({Key? key, required this.user}) : super(key: key);
+
+  final appUser user;
 
   @override
   State<QrScanner> createState() => _QrScannerState();
@@ -23,7 +25,6 @@ class QrScanner extends StatefulWidget {
 
 class _QrScannerState extends State<QrScanner> {
   String barcodeScanRes = '';
-  int qrCode = 0;
 
   Future<void> scanBarcodeNormal() async {
     try {
@@ -31,13 +32,13 @@ class _QrScannerState extends State<QrScanner> {
           '#ff6666', 'Cancel', true, ScanMode.QR);
       debugPrint(barcodeScanRes);
 
-      qrCode = int.parse(barcodeScanRes);
+      int qrCode = int.parse(barcodeScanRes);
 
       // Pass the result to another class
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => quizPage(qrCode: qrCode),
+          builder: (context) => quizPage(qrCode: qrCode, user: widget.user,),
         ),
       );
     } on PlatformException {
@@ -72,7 +73,6 @@ class _QrScannerState extends State<QrScanner> {
                 onPressed: scanBarcodeNormal,
                 child: const Text('Scan Your QR'),
               ),
-
             ],
           ),
         ),
