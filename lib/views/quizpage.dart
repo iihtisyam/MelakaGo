@@ -137,35 +137,11 @@ class _quizPageState extends State<quizPage> {
     });
   }
 
-
-
   int getTimeTakenInSeconds() {
     // Calculate the total time taken from the start to the end of the quiz
     totalTimeTaken = DateTime.now().difference(WholeStartTime).inSeconds;
     return totalTimeTaken;
   }
-
-
-
-  /*int getTimeTakenForCurrentQuestion() {
-    if (startTimeList.length > questionIndex && endTimeList.length > questionIndex) {
-      return endTimeList[questionIndex].difference(startTimeList[questionIndex]).inSeconds;
-    } else {
-      return 0;
-    }
-  }
-*/
-
-
-  /*int getTimeTakenForEachQuestion(int questionIndex) {
-    if (questionIndex >= 0 && questionIndex < quiz.length) {
-      return endTimeQuestion.difference(startTimeQuestion).inSeconds;
-    } else {
-      return 0;
-    }
-  }
-*/
-
 
   void answerQuestion(String selectedAnswer) {
     setState(() {
@@ -183,7 +159,7 @@ class _quizPageState extends State<quizPage> {
   void _showScoreDialog() {
 
     // int timeTaken = getTimeTakenInSeconds();
-    WholeEndTime = DateTime.now();
+    // b WholeEndTime = DateTime.now();
 
     showDialog(
       context: context,
@@ -267,9 +243,16 @@ class _quizPageState extends State<quizPage> {
                           print('Error saving session detail: $e');
                         }
                       }
-                    /*  _AlertMessage("You have done your quiz!");
-                      Future.delayed(Duration(seconds: 2), () {
-                      });*/
+                      int appUserId = widget.user.appUserId!;
+                      int totalPoints = totalPointQuiz;
+
+                      bool pointsUpdated = await widget.user.updatePoints(totalPoints);
+
+                      if (pointsUpdated) {
+                        print('User points updated successfully');
+                      } else {
+                        print('Failed to update user points');
+                      }
                     }
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>ExplorePage(user: widget.user)));
                   }
