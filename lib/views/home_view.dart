@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:melakago/views/rewardpage.dart';
 
 import '../Model/appUser.dart';
-import '../qr_scanner.dart';
+import 'qr_scanner.dart';
 
 /*void main() {
   runApp(ExplorePage(username: ''));
@@ -20,7 +21,7 @@ import '../qr_scanner.dart';
 class ExplorePage extends StatelessWidget {
 
   late final appUser user;
-  ExplorePage({required this.user}) : nickName = user.nickName;
+  ExplorePage({required this.user}) : nickName = user.nickName!;
   String nickName = '';
 
   @override
@@ -31,28 +32,98 @@ class ExplorePage extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.lightGreen.shade700,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Featured Destinations
-            _buildSectionTitle('Featured Destinations'),
-            _buildFeaturedDestinations(),
-
-            // Categories
-            _buildSectionTitle('Categories'),
-            _buildCategories(),
-
-            // Nearby Places
-            _buildSectionTitle('Nearby Places'),
-            _buildNearbyPlaces(),
-
-            // Explore on Map Button
-            _buildExploreOnMapButton(),
-
-            _buildScanQr(context),
-          ],
-        ),
+      body: ListView(
+        children: <Widget>[
+          buildSectionTitle(context, 'Explore'),
+          Row(
+            children: [
+              Expanded(
+                child: buildCategoryItem('Attractions'),
+              ),
+              Expanded(
+                child: buildCategoryItem('Lodging'),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: buildCategoryItem('Foods'),
+              ),
+              Expanded(
+                child: buildCategoryItem('Activities'),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: buildCategoryItem('Shopping'),
+              ),
+              Expanded(
+                child: buildCategoryItem('Transport'),
+              ),
+            ],
+          ),
+          buildSectionTitle(context, 'You might like these'),
+          Row(
+            children: [
+              Expanded(
+                child: buildPlaceItem('Kopi Chendana'),
+              ),
+              Expanded(
+                child: buildPlaceItem('Taman Botanikal'),
+              ),
+              // Add more items here
+            ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.explore, color: Colors.black,),
+            label: 'Explore',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite,  color: Colors.black,),
+            label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code,  color: Colors.black,),
+            label: 'QrCode',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.card_giftcard,  color: Colors.black,),
+            label: 'Reward',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person,  color: Colors.black,),
+            label: 'Account',
+          ),
+        ],
+        onTap: (index){
+          // Handle item tap
+          switch (index) {
+            case 2: // Index of the QR code icon
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QrScanner(user: user,), // Your QrScanner page
+                ),
+              );
+              break;
+          // Add more cases for other items if needed
+            case 3: // Index of the QR code icon
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RewardPage(user: user,), // Your QrScanner page
+                ),
+              );
+              break;
+          }
+        },
       ),
     );
   }
@@ -207,4 +278,34 @@ class ExplorePage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget buildCategoryItem(String title) {
+  return Card(
+    child: ListTile(
+      title: Text(title),
+    ),
+  );
+}
+
+Widget buildSectionTitle(BuildContext context, String title) {
+  return Container(
+    margin: EdgeInsets.all(10),
+    child: Text(
+      title,
+      style: Theme.of(context).textTheme.headline6,
+    ),
+  );
+}
+
+
+Widget buildPlaceItem(String title) {
+  return Card(
+    child: ListTile(
+      leading: CircleAvatar(
+        child: Text(title[0]),
+      ),
+      title: Text(title),
+    ),
+  );
 }

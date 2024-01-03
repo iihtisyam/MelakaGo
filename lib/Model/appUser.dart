@@ -1,17 +1,18 @@
 import '../Controller/request_controller.dart';
 
 class appUser {
-  int appUserId;
-  String firstName;
-  String lastName;
-  String nickName;
-  String dateOfBirth;
-  String phoneNumber;
-  String email;
-  String password;
-  String accessStatus;
-  String country;
-  int roleId;
+  int? appUserId;
+  String? firstName;
+  String? lastName;
+  String? nickName;
+  String? dateOfBirth;
+  String? phoneNumber;
+  String? email;
+  String? password;
+  String? accessStatus;
+  String? country;
+  int? roleId;
+  int? points;
 
   appUser(
       this.appUserId,
@@ -24,7 +25,17 @@ class appUser {
       this.password,
       this.accessStatus,
       this.country,
-      this.roleId
+      this.roleId,
+      this.points
+      );
+
+  appUser.getId(
+      this.email,
+      );
+
+  appUser.resetPassword(
+      this.appUserId,
+      this.password
       );
 
   appUser.fromJson(Map<String, dynamic> json)
@@ -38,7 +49,8 @@ class appUser {
         password = json['password'] as String,
         accessStatus = json['accessStatus'] as String,
         country = json['country'] as String,
-        roleId = json['roleId'] as int;
+        roleId = json['roleId'] as int,
+        points = json['points'] as int;
 
   //toJson will be automatically called by jsonEncode when necessary
   Map<String, dynamic> toJson() => {
@@ -52,7 +64,9 @@ class appUser {
     'password': password,
     'accessStatus': accessStatus,
     'country': country,
-    'roleId': roleId
+    'roleId': roleId,
+    'points': points
+
   };
 
   Future<bool> save() async {
@@ -94,6 +108,7 @@ class appUser {
       password = result['password'].toString();
       country = result['country'].toString();
       accessStatus = result['accessStatus'].toString();
+      points = int.parse(result['points'].toString());
 
       return true;
     } else {
@@ -101,12 +116,9 @@ class appUser {
     }
   }
 
-
-
-  Future<bool> deleteUser() async {
-
-    RequestController req = RequestController(path: "/api/appUserCheckExistence.php");
-    req.setBody({"appUserId": appUserId, "accessStatus": "DEACTIVATE"});
+  Future<bool> resetPassword() async {
+    RequestController req = RequestController(path: "/api/getAppUserId.php");
+    req.setBody({"appUserId": appUserId, "password": password });
     await req.put();
     if (req.status() == 400) {
       return false;
@@ -117,17 +129,18 @@ class appUser {
     }
   }
 
-  Future<List<appUser>> loadAll() async {
-    List<appUser> result = [];
-    RequestController req =
-    RequestController(path: "/api/appUserCheckExistence.php");
-    await req.get();
-    if (req.status() == 200 && req.result() != null) {
-      for (var item in req.result()) {
-        result.add(appUser.fromJson(item) as appUser);
-      }
+  Future<bool> getUserId() async {
+    RequestController req = RequestController(path: "/api/getAppUserId.php");
+    req.setBody(toJson());
+    await req.post();
+    if (req.status() == 200) {
+      appUserId=req.result()['appUserId'];
+      print(appUserId);
+      return true;
     }
-    return result;
+    else {
+      return false;
+    }
   }
-//hello world!!
+
 }

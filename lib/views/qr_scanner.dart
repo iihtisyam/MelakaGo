@@ -15,7 +15,7 @@ import 'package:melakago/views/quizpage.dart';
 }*/
 
 class QrScanner extends StatefulWidget {
-  const QrScanner({Key? key, required this.user}) : super(key: key);
+  const QrScanner({Key? key, required this.user}) : super(key: key); //yang ni amik data user
 
   final appUser user;
 

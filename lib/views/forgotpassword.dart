@@ -1,31 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:melakago/views/home_view.dart';
-//import 'package:melakago_web/views/home/homePageView_Web_BSDC.dart';
-import '../../Model/appUser.dart';
-import 'SignUp.dart';
-import 'forgotpassword.dart';
-//import 'home/homePageView_Web_SA.dart';
-//import 'home/homePageView_Web_TAC.dart';
-//import 'home/home_view.dart';
+import '../Model/appUser.dart';
+import 'loginpage.dart';
 
-void main(){
-  runApp(const MaterialApp(
-    home:signIn(),
-  ));
-}
 
-class signIn extends StatefulWidget {
-  const signIn({super.key});
+class PasswordResetPage extends StatefulWidget {
+  const PasswordResetPage({super.key});
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _PasswordResetPageState createState() => _PasswordResetPageState();
 }
 
-class _LoginScreenState extends State<signIn> {
+class _PasswordResetPageState extends State<PasswordResetPage> {
   late final appUser user;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmationpasswordController = TextEditingController();
   bool isPasswordVisible = false;
 
   void _togglePasswordVisibility() {
@@ -40,48 +30,69 @@ class _LoginScreenState extends State<signIn> {
 
     final String email = emailController.text.trim();
     final String password=passwordController.text.trim();
-    int appUserId=0;
-    String firstName='';
-    String lastName='';
-    String nickName='';
-    String dateOfBirth='';
-    String phoneNumber='';
-    String country='';
-    String accessStatus='';
-    int roleId=4;
-    int points=0;
+    final String confirmationpassword = confirmationpasswordController.text.trim();
 
-    if ( email.isNotEmpty && password.isNotEmpty) {
 
-      //_AlertMessage("success");
+    if (password == confirmationpassword){
+      int appUserId=0;
+      String firstName='';
+      String lastName='';
+      String nickName='';
+      String dateOfBirth='';
+      String phoneNumber='';
+      String country='';
+      String accessStatus='';
+      int roleId=4;
+      int points=0;
+      //oii wafir
+      if ( email.isNotEmpty && password.isNotEmpty && confirmationpassword.isNotEmpty) {
 
-      appUser user = appUser (appUserId, firstName, lastName, nickName, dateOfBirth,
-          phoneNumber,email, password, accessStatus,
-          country, roleId, points);
+        //_AlertMessage("success");
 
-      if (await user.checkTouristExistence() && user.roleId == 4){
-        setState(() {
-          emailController.clear();
-          passwordController.clear();
-        });
+        appUser user = appUser.getId (email);
 
-        _showMessage("LogIn Successful");
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>ExplorePage(user:user)));
+        if(await user.getUserId()){
+          int? appUserId = user.appUserId;
+
+          appUser reset = appUser.resetPassword(appUserId, password) ;
+
+          if (await reset.resetPassword()) {
+
+            _AlertMessage1("Password successfully being reset");
+
+            Future.delayed(Duration(seconds: 2), () {
+              // Navigate to the login screen
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>signIn()));
+            });
+
+          }
+
+        }
+
 
       }
       else{
-        _AlertMessage("EMAIL OR PASSWORD WRONG!");
+        _AlertMessage("Please Insert All The Information Needed");
+        setState(() {
+
+          emailController.clear();
+          passwordController.clear();
+          confirmationpasswordController.clear();
+        });
+
       }
     }
-    else{
-      _AlertMessage("Please Insert All The Information Needed");
+    else
+    {
+      _AlertMessage("Confirmation Password not same with the password");
       setState(() {
 
         emailController.clear();
         passwordController.clear();
+        confirmationpasswordController.clear();
       });
-
     }
+
   }
 
 
@@ -105,6 +116,18 @@ class _LoginScreenState extends State<signIn> {
     );
   }
 
+  void _AlertMessage1(String msg) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Message"),
+          content: Text(msg),
+        );
+      },
+    );
+  }
+
   void _showMessage(String msg){
     if(mounted){
       ScaffoldMessenger.of(context).showSnackBar(
@@ -115,13 +138,6 @@ class _LoginScreenState extends State<signIn> {
     }
   }
 
-  void _forgetPassword() {
-    // Navigate to the PasswordResetPage when "Forget Password?" is pressed
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PasswordResetPage()),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +146,7 @@ class _LoginScreenState extends State<signIn> {
         toolbarHeight: 90,
         title: Center(
           child: const Text(
-            'Welcome To MelakaGo',
+            'Reset User Password',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
           ),
         ),
@@ -225,50 +241,70 @@ class _LoginScreenState extends State<signIn> {
                           ],
                         ),
                       ),
+
                     ],
                   ),
                 ),
               ),
               SizedBox(height: 5), // Add some spacing
-              TextButton(
-                onPressed: _forgetPassword,
-                child: Text(
-                  'Forget Password?',
-                  style: TextStyle(
-                    color: Colors.blue,
+              Container(
+                width: 500,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Confirmation Password',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 5.0),
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(50.0),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: confirmationpasswordController,
+                                obscureText: !isPasswordVisible,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: _togglePasswordVisibility,
+                              icon: Icon(
+                                isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    ],
                   ),
                 ),
               ),
-              SizedBox(height: 5), // Add some spacing
+              SizedBox(height: 15), // Add some spacing
               ElevatedButton(
                 onPressed: _checkUser,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700, // Set your desired background color here
+                  backgroundColor: Colors.lightGreen.shade700, // Set your desired background color here
                 ),
-                child: const Text('Login',
+                child: const Text('Reset Password',
                     style: TextStyle(fontSize: 18.0,
                         fontWeight: FontWeight.bold, color: Colors.white)),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => signUp()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700,
-                ),
-                child: const Text(
-                  'Sign Up',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-
+              SizedBox(height: 30),
             ],
           ),
         ),

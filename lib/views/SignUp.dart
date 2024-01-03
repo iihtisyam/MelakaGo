@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:melakago/views/loginpage.dart';
 
-import '../Model/appUser.dart';
+import '../../Model/appUser.dart';
 //import 'login.dart';
 
 void main() {
@@ -219,6 +219,7 @@ class _signUpState extends State<signUp> {
     final String accessStatus = 'ACTIVE';
     int appUserId=0;
     int roleId=4;
+    int points=0;
 
     if (firstName.isNotEmpty && lastName.isNotEmpty && nickName.isNotEmpty
         && dateOfBirth.isNotEmpty && email.isNotEmpty && password.isNotEmpty
@@ -243,7 +244,7 @@ class _signUpState extends State<signUp> {
 
       appUser user = appUser (appUserId,firstName, lastName, nickName,
           dateOfBirth, phoneNumber,email, password, accessStatus,
-          selectedCountry.toString(), roleId);
+          selectedCountry.toString(), roleId, points);
 
       if (await user.save()){
         setState(() {

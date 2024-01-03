@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:melakago/Model/appUser.dart';
-import 'package:melakago/qr_scanner.dart';
+import 'package:melakago/Model/tourismService.dart';
+import 'package:melakago/Model/tourismService.dart';
+import 'package:melakago/views/qr_scanner.dart';
+import 'package:melakago/views/home_view.dart';
 
 import '../Model/quizQuestion.dart';
+import '../Model/tourismService.dart';
+import '../Model/tourismService.dart';
 import '../Model/touristQuizSession.dart';
+import '../Model/touristQuizSessionDetail.dart';
+import '../Model/qrspot.dart';
 
 class quizPage extends StatefulWidget {
   late int qrCode;
@@ -27,11 +34,19 @@ class _quizPageState extends State<quizPage> {
   late Timer timer;
   int currentQuestionPoints = 0;
   int totalPointQuiz=0;
+  int tqsId=0;
+  int totalTimeTaken = 0;
+  List<String> answerQuiz=[];
+  List<int> timeEachQuestion=[];
+
+ /* List<DateTime> startTimeList = [];
+  List<DateTime> endTimeList = [];*/
 
   DateTime WholeStartTime=DateTime.now();
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   DateTime WholeEndTime = DateTime.now();
+
 
 
   int questionId = 0;
@@ -46,7 +61,20 @@ class _quizPageState extends State<quizPage> {
 
   final List<quizQuestion> quiz = [];
 
-  void QuizQuestion() async {
+
+  tourismService _tourismService = tourismService();
+  String? companyName = '';
+
+
+
+  Future<void> fetchTourismServiceInfo() async {
+    qrSpot _qrSpot = qrSpot(widget.qrCode, 0);
+    String? getCompany = await _qrSpot.getServiceId();
+    companyName=getCompany;
+  }
+
+
+  Future<List<quizQuestion>> QuizQuestion() async {
     qrId = widget.qrCode;
     quizQuestion question = quizQuestion(
       questionId,
@@ -72,46 +100,77 @@ class _quizPageState extends State<quizPage> {
       //set the current question's points
       currentQuestionPoints = quiz[questionIndex].point ?? 0;
     });
+    return loadedQuestions;
   }
 
   void startTimer() {
-    startTime = DateTime.now();
+    // startTimeList.add(DateTime.now());
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         if (secondsRemaining > 0) {
           secondsRemaining--;
         } else {
           timer.cancel();
-          // Handle the timer expiration (e.g., move to the next question)
+          // endTimeList.add(DateTime.now());
           moveToNextQuestion();
         }
       });
     });
   }
 
+
   void moveToNextQuestion() {
     setState(() {
       if (questionIndex < quiz.length - 1) {
         questionIndex++;
-        secondsRemaining = 30; // Reset the timer for the next question
-        startTimer(); // Start the timer for the new question
+        secondsRemaining = 30;
+        // Update WholeStartTime for the next question
+        WholeStartTime = DateTime.now();
+        // startTimeList.add(DateTime.now());
+        startTimer();
       } else {
-        // If all questions are answered, show the score
-        endTime = DateTime.now();
+        // Update WholeEndTime for the last question
+        WholeEndTime = DateTime.now();
         timer.cancel();
         _showScoreDialog();
       }
     });
   }
 
+
+
   int getTimeTakenInSeconds() {
-    return endTime.difference(startTime).inSeconds;
+    // Calculate the total time taken from the start to the end of the quiz
+    totalTimeTaken = DateTime.now().difference(WholeStartTime).inSeconds;
+    return totalTimeTaken;
   }
+
+
+
+  /*int getTimeTakenForCurrentQuestion() {
+    if (startTimeList.length > questionIndex && endTimeList.length > questionIndex) {
+      return endTimeList[questionIndex].difference(startTimeList[questionIndex]).inSeconds;
+    } else {
+      return 0;
+    }
+  }
+*/
+
+
+  /*int getTimeTakenForEachQuestion(int questionIndex) {
+    if (questionIndex >= 0 && questionIndex < quiz.length) {
+      return endTimeQuestion.difference(startTimeQuestion).inSeconds;
+    } else {
+      return 0;
+    }
+  }
+*/
 
 
   void answerQuestion(String selectedAnswer) {
     setState(() {
-      timer.cancel(); // Stop the timer when an answer is selected
+      timer.cancel();
+      answerQuiz.add(selectedAnswer);
       if (selectedAnswer == quiz[questionIndex].correctAnswer) {
         score++;
         totalPointQuiz += quiz[questionIndex].point!;
@@ -123,7 +182,7 @@ class _quizPageState extends State<quizPage> {
 
   void _showScoreDialog() {
 
-    int timeTaken = getTimeTakenInSeconds();
+    // int timeTaken = getTimeTakenInSeconds();
     WholeEndTime = DateTime.now();
 
     showDialog(
@@ -137,13 +196,13 @@ class _quizPageState extends State<quizPage> {
             children: [
               Text('Your Score: $score out of ${quiz.length}'),
               SizedBox(height: 8),
-              Text('Time Taken: $timeTaken seconds'),
+              Text('Time Taken: $totalTimeTaken seconds'),
               SizedBox(height: 8),
               Text('Your Total Points: $totalPointQuiz'),
               SizedBox(height: 8),
-              Text('Start Time: $WholeStartTime'),
+            /*  Text('Start Time: $WholeStartTime'),
               SizedBox(height: 8),
-              Text('End Time: $WholeEndTime'),
+              Text('End Time: $WholeEndTime'),*/
 
             ],
           ),
@@ -151,43 +210,70 @@ class _quizPageState extends State<quizPage> {
             TextButton(
               onPressed: () async {
                 // Reset the quiz
-                Navigator.pop(context);
+               /* Navigator.pop(context);
                 setState(() {
                   questionIndex = 0;
                   score = 0;
                   secondsRemaining = 30;
-                });
-
+                });*/
                 startTimer(); // Start the timer for the first question
-
                 // Check if all questions have been answered
-
                   // Calculate endTime or get it from your logic
-
-
                   // Get appUserId from your user object or other logic
-                  int appUserId = widget.user.appUserId;
+                  int appUserId = widget.user.appUserId!;
 
-                  // Create a touristQuizSession instance and submit data to the database
-
-                 /* await touristQuizSession(
-                    startTime: startTime,
-                    endTime: endTime,
-                    totalPoints: score,
-                    appUserId: appUserId,
-                  ).submitQuizSession();*/
-
-                  touristQuizSession quizSession = touristQuizSession(startTime: WholeStartTime, endTime: WholeEndTime, totalPoints: totalPointQuiz, appUserId: appUserId);
+                  touristQuizSession quizSession = touristQuizSession
+                    (tqsId: tqsId, startTime: WholeStartTime, endTime: WholeEndTime,
+                      totalPoints: totalPointQuiz, appUserId: appUserId);
 
                   if(await quizSession.submitQuizSession()){
+                    print ("WHOLE TIME : ${WholeEndTime}");
+                    DateTime QuizStartTime = DateTime.parse(removeDecimalNumbers
+                      (WholeStartTime));
+                    DateTime QuizEndTime = DateTime.parse(removeDecimalNumbers
+                      (WholeEndTime));
 
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QrScanner(user: widget.user)));
+                    touristQuizSession gettqsId = touristQuizSession.getTqsId
+                      (startTime: QuizStartTime, endTime: QuizEndTime,
+                        totalPoints: totalPointQuiz, appUserId: appUserId);
 
+                    if(await gettqsId.getTqsId()){
+
+                      int sessionDetailId=0;
+                      tqsId = gettqsId.tqsId!;
+
+                      print("TQSID GET FROM METHOD: ${tqsId}");
+
+                      List<quizQuestion> loadedQuestions = await QuizQuestion();
+
+
+                      for (int i = 0; i < loadedQuestions.length; i++) {
+                        touristQuizSessionDetail sessionDetail = touristQuizSessionDetail(
+                          sessionDetailId: sessionDetailId,
+                          tqsId: tqsId,
+                          questionId: loadedQuestions[i].questionId!,
+                          touristAnswer: answerQuiz[i],
+                        );
+
+                        try {
+                          bool savedSuccessfully = await sessionDetail.saveSessionDetail();
+
+                          if (savedSuccessfully) {
+                            print('Session detail saved successfully');
+                          } else {
+                            print('Session detail is already registered');
+                          }
+                        } catch (e) {
+                          print('Error saving session detail: $e');
+                        }
+                      }
+                    /*  _AlertMessage("You have done your quiz!");
+                      Future.delayed(Duration(seconds: 2), () {
+                      });*/
+                    }
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ExplorePage(user: widget.user)));
                   }
-
-
-
-              },
+                  },
               child: Text('Done'),
             ),
           ],
@@ -196,10 +282,60 @@ class _quizPageState extends State<quizPage> {
     );
   }
 
+  String removeDecimalNumbers(DateTime dateTime) {
+    // Extract the date and time without milliseconds
+    DateTime result = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      dateTime.hour,
+      dateTime.minute,
+      dateTime.second,
+    );
+
+    // Check if the millisecond value is greater than or equal to 500
+    if (dateTime.millisecond >= 500) {
+      // If so, round up the seconds value
+      result = result.add(Duration(seconds: 1));
+    }
+
+    // Format the result as a string
+    String formattedString = result.toLocal().toIso8601String();
+
+    // Find the index of the decimal point
+    int decimalPointIndex = formattedString.indexOf('.');
+
+    // Extract the substring before the decimal point
+    String finalResult = formattedString.substring(0, decimalPointIndex);
+
+    return finalResult;
+  }
+
+  /*void _AlertMessage(String msg) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Message"),
+          content: Text(msg),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+*/
+
   @override
   void initState() {
     super.initState();
-    timer = Timer(Duration(seconds: 1), () {});
+    fetchTourismServiceInfo();
     QuizQuestion();
     startTimer(); // Start the timer for the first question
   }
@@ -221,9 +357,9 @@ class _quizPageState extends State<quizPage> {
               'Quiz Questions',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
             ),
-            const SizedBox(height: 8),
             Text(
-              'QR ID: $qrId',
+              // Use companyName obtained from fetchData
+              'Company: ${companyName ?? ''}',
               style: TextStyle(fontSize: 16.0, color: Colors.white),
             ),
           ],
@@ -246,7 +382,7 @@ class _quizPageState extends State<quizPage> {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
                       ),
                       subtitle: Text(
-                        'Marks for this question: ${quiz[questionIndex].point} ',
+                        'Points for this question: ${quiz[questionIndex].point} ',
                       ),
                     ),
                   if (quiz.isNotEmpty && questionIndex < quiz.length)
