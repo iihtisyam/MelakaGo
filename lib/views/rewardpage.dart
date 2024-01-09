@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:melakago/views/claimedreward.dart';
 import '../Model/redemption.dart';
 import '../Model/appUser.dart';
 import 'package:melakago/Model/reward.dart';
+import 'package:intl/intl.dart';
 
 class RewardPage extends StatefulWidget {
   //const RewardPage({super.key});
@@ -16,6 +18,13 @@ class RewardPage extends StatefulWidget {
   State<RewardPage> createState() => _RewardPageState();
 }
 
+class DateUtils {
+  static String getCurrentDate() {
+    DateTime now = DateTime.now();
+    return DateFormat('yyyy-MM-dd').format(now);
+  }
+}
+
 class _RewardPageState extends State<RewardPage> {
 
   int rewardIndex = 0;
@@ -24,33 +33,43 @@ class _RewardPageState extends State<RewardPage> {
   String rewardCode = '';
   String tnc = '';
 
+  int redeemId = 0;
+  int appUserId = 0;
+  int pointsRedeemed = 0;
+  //DateTime dateRedeemed=DateTime.now();
+  //DateTime expirationDate=DateTime.now();
+  int status = 0;
+  DateTime now = DateTime.now();
+  String dateRedeemed = DateUtils.getCurrentDate();
+  String expirationDate = DateUtils.getCurrentDate();
+
   int totalRedeemedPoints = 0;
 
-  final List<Reward> rewards = []; // Use List<Reward> to store rewards
+  List<Reward> rewards = []; // Use List<Reward> to store rewards
+  List<Reward> claimedRewards = [];
+
+  Future<List<Reward>> reward() async {
+    int rewardPoint = widget.user.points!;
+
+    Reward reward = Reward(
+      rewardId,
+      rewardName,
+      rewardPoint,
+      rewardCode,
+      tnc,
+    );
+
+    List<Reward> fetchedRewards = await reward.fetchRewards();
+
+    setState(() {
+      rewards.clear();
+      rewards.addAll(fetchedRewards);
+      print("rewardId: ${rewards[1].rewardId}");
+    });
+    return fetchedRewards;
 
 
- Future<List<Reward>> reward() async {
-   int rewardPoint = widget.user.points!;
-
-   Reward reward = Reward(
-     rewardId,
-     rewardName,
-     rewardPoint,
-     rewardCode,
-     tnc,
-   );
-
-   List<Reward> fetchedRewards = await reward.fetchRewards();
-
-   setState(() {
-     rewards.clear();
-     rewards.addAll(fetchedRewards);
-     print("rewardId: ${rewards[1].rewardId}");
-   });
-   return fetchedRewards;
-
-
- }
+  }
 
   @override
   void initState() {
@@ -58,7 +77,64 @@ class _RewardPageState extends State<RewardPage> {
     reward(); // Fetch rewards data when the page initializes
   }
 
-  /*void redeemReward(Reward reward) async {
+  void claimReward(Reward reward) async {
+    try {
+      int appUserId = widget.user.appUserId!;
+      int totalPoints = totalRedeemedPoints;
+
+      bool pointsDeduct = await widget.user.deductPoints(totalPoints);
+
+      if (widget.user.points != null && reward.rewardPoint != null) {
+        // Deduct points and update totalRedeemedPoints
+        totalPoints = (widget.user.points! - reward.rewardPoint!).clamp(0, double.infinity).toInt();
+        totalRedeemedPoints += reward.rewardPoint!;
+        //getDateRedeemed = "${dateRedeemed.day}-${dateRedeemed.month}-${dateRedeemed.year}";
+
+        Redemption redemption = Redemption
+          (rewardId: reward.rewardId, appUserId: appUserId, pointsRedeemed: totalRedeemedPoints,
+            dateRedeemed: dateRedeemed, expirationDate: expirationDate, status: status);
+
+        if (await redemption.saveRedeem()){
+          print("Redemption Successful");
+        }
+
+      } else {
+        // Handle the case where either widget.user.points or reward.rewardPoint is null
+        print('Warning: widget.user.points or reward.rewardPoint is null.');
+        return; // or throw an exception, depending on your error-handling strategy
+      }
+      // You should replace the following logic with your actual redemption logic
+      // For now, let's assume that the redemption process is successful
+
+      // You may also want to handle points deduction or any other backend operation
+      // For example: await Redemption.redeemReward(widget.user.appUserId, reward.rewardId);
+
+      // Remove the claimed reward from available rewards
+      setState(() {
+        rewards.remove(reward);
+        claimedRewards.add(reward);
+      });
+
+      // Display a snackbar or another form of feedback to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Congratulations! You have claimed the reward.'),
+        ),
+      );
+      // Navigate to RedeemedRewardsPage after successfully claiming the reward
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
+        ),
+      );
+    } catch (e) {
+      print('Error claiming reward: $e');
+      // Handle errors gracefully, e.g., display an error message to the user
+    }
+  }
+
+  /*void claimReward(Reward reward) async {
     // Assuming redeeming involves an asynchronous operation
     try {
       if (widget.user.points >= reward.rewardPoint) {
@@ -68,6 +144,8 @@ class _RewardPageState extends State<RewardPage> {
 
         // Perform the redemption operation here, update UI accordingly
       setState(() {
+        rewards.remove(reward);
+        claimedRewards.add(reward);
         widget.user.points -= reward.rewardPoint ?? 0;
         totalRedeemedPoints += reward.rewardPoint ?? 0;
       });
@@ -75,7 +153,7 @@ class _RewardPageState extends State<RewardPage> {
       // Display a snackbar or another form of feedback to the user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Congratulations! You have redeemed the reward.'),
+          content: Text('Congratulations! You have claimed the reward.'),
         ),
       );
       } else {
@@ -86,8 +164,14 @@ class _RewardPageState extends State<RewardPage> {
           ),
         );
       }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
+        ),
+      );
     } catch (e) {
-      print('Error redeeming reward: $e');
+      print('Error claiming reward: $e');
       // Handle errors gracefully, e.g., display an error message to the user
     }
   }*/
@@ -167,6 +251,11 @@ class _RewardPageState extends State<RewardPage> {
                                 reward.rewardName ?? '',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
                               ),
+                              subtitle: Text('${reward.rewardPoint} Points'),
+                              trailing: ElevatedButton(
+                                onPressed: () => claimReward(reward),
+                                child: Text('Claim'),
+                              ),
                             ),
                         ],
                       ),
@@ -194,9 +283,14 @@ class _RewardPageState extends State<RewardPage> {
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                print('Total Redeemed Points: $totalRedeemedPoints');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
+                  ),
+                );
               },
-              child: Text('Redeem Selected Rewards'),
+              child: Text('My Claimed Rewards'),
             ),
           ],
         ),

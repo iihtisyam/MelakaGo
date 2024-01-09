@@ -9,12 +9,12 @@ class Reward {
   final String tnc;
 
   Reward(
-     this.rewardId,
-     this.rewardName,
-     this.rewardPoint,
-     this.rewardCode,
-     this.tnc,
-  );
+      this.rewardId,
+      this.rewardName,
+      this.rewardPoint,
+      this.rewardCode,
+      this.tnc,
+      );
 
   Reward.fromJson(Map<String, dynamic>json)
       : rewardId = int.tryParse(json['rewardId'] ?? '') ?? 0,

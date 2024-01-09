@@ -9,7 +9,7 @@ class Redemption {
   int? pointsRedeemed;
   String? dateRedeemed;
   String? expirationDate;
-  String? status;
+  int? status;
 
   Redemption({
     this.redeemId,
@@ -38,9 +38,9 @@ class Redemption {
         rewardId = int.tryParse(json['rewardId'] ?? '') ?? 0,
         appUserId = int.tryParse(json['appUserId'] ?? '') ?? 0,
         pointsRedeemed = int.tryParse(json['pointsRedeemed'] ?? '') ?? 0,
-        dateRedeemed = json['dateRedeemed'] as String? ?? "",
-        expirationDate = json['expirationDate'] as String? ?? "",
-        status = json['status'] as String? ?? "";
+        dateRedeemed = json['dateRedeemed'] as String? ??"",
+        expirationDate = json['expirationDate'] as String? ??"",
+        status = int.tryParse(json['status'] ?? '') ?? 0;
 
   Map<String, dynamic> toJson() =>
       {
@@ -53,13 +53,13 @@ class Redemption {
         'status': status,
       };
 
-  Future<void> redeemReward(int userId, Reward reward) async {
+  /*Future<void> claimReward(int userId, Reward reward) async {
     // Extract the rewardId from the Reward object
     final int rewardId = reward.rewardId ?? 0;
 
     // Perform HTTP request to redeem the reward
     final response = await http.post(
-      Uri.parse('http://192.168.0.17/redeem.php'),
+      Uri.parse('http://10.131.78.161/redeem.php'),
       body: {
         'userId': userId.toString(),
         'rewardId': rewardId.toString(),
@@ -73,6 +73,24 @@ class Redemption {
       // If the server returns an error response,
       // throw an exception or handle accordingly.
       print('Failed to redeem reward.');
+    }
+  }*/
+
+  Future<bool> saveRedeem() async {
+    RequestController req = RequestController(path: "/api/redeem.php");
+    req.setBody(toJson());
+    await req.post();
+    if (req.status() == 400) {
+      return true;
+    } else if (req.status() == 200) {
+      String data = req.result().toString();
+      if (data == '{error: Redemption failed}') {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return true;
     }
   }
 }
