@@ -51,19 +51,6 @@ class quizQuestion{
     'qrId': qrId,
   };
 
- /* Future<List<quizQuestion>> loadQuestion() async {
-    List<quizQuestion> result = [];
-    RequestController req =
-    RequestController(path: "/api/quizquestion.php");
-    req.setBody(toJson());
-    await req.post();
-    if (req.status() == 200 && req.result() != null) {
-      for (var item in req.result()) {
-        result.add(quizQuestion.fromJson(item));
-      }
-    }
-    return result;
-  }*/
 
 
   Future<List<quizQuestion>> loadQuestion() async {

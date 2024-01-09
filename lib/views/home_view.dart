@@ -1,37 +1,153 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:melakago/views/editProfile.dart';
+import 'package:melakago/views/loginpage.dart';
 import 'package:melakago/views/rewardpage.dart';
 
+import '../Model/tourismService.dart';
+import '../Model/tourismServiceImage.dart';
 import '../Model/appUser.dart';
 import 'qr_scanner.dart';
 
-/*void main() {
-  runApp(ExplorePage(username: ''));
-*/
+class ExplorePage extends StatefulWidget {
+  final appUser user;
 
-/*class MyApp extends StatelessWidget {
+  ExplorePage({required this.user});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ExplorePage({required this.user}),
-    );
-  }
-}*/
+  _ExplorePageState createState() => _ExplorePageState();
+}
 
-class ExplorePage extends StatelessWidget {
-
+class _ExplorePageState extends State<ExplorePage> {
   late final appUser user;
-  ExplorePage({required this.user}) : nickName = user.nickName!;
+  int tourismServiceId = 0;
+  String companyName = '';
+  String companyAddress = '';
+  String businessContactNumber = '';
+  String email = '';
+  String businessStartHour = '';
+  String businessEndHour = '';
+  String faxNumber = '';
+  String instagram = '';
+  String xTwitter = '';
+  String thread = '';
+  String facebook = '';
+  String businessLocation = '';
+  int starRating = 0;
+  String businessDescription = '';
+  int tsId = 0;
+  int isDelete = 0;
+  int imageId = 0;
+  String image = '';
+  String? getImages = '';
+
+  final List<tourismService> service = [];
+
   String nickName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadTourism();
+  }
+
+  Future<List<tourismService>> loadTourism() async {
+    tourismService tourism = tourismService.getService(
+      tourismServiceId,
+      companyName,
+      companyAddress,
+      businessContactNumber,
+      email,
+      businessStartHour,
+      businessEndHour,
+      faxNumber,
+      instagram,
+      xTwitter,
+      thread,
+      facebook,
+      businessLocation,
+      starRating,
+      businessDescription,
+      tsId,
+      isDelete,
+    );
+
+    List<tourismService> loadedTourism = await tourism.loadImages();
+
+    setState(() {
+      service.clear();
+      service.addAll(loadedTourism);
+      print("iihihi: ${service[0].TourismServiceImage?.image}");
+    });
+    return loadedTourism;
+  }
+
+  Uint8List? _loadImage(index) {
+    getImages = service[index].TourismServiceImage!.image;
+
+    if (getImages == null || getImages!.isEmpty) {
+      print('List images is empty');
+      return null;
+    }
+
+    try {
+      // Remove backslashes from the string
+      getImages = getImages?.replaceAll(r'\\', '');
+
+      // Trim the string to remove any leading or trailing whitespaces
+      getImages = getImages?.trim();
+      print("IMAAAAAAA: ${getImages}");
+
+      if (getImages!.startsWith("data:image\/jpeg;base64,")) {
+        // Remove the prefix "data:image/jpeg;base64,"
+        getImages = getImages?.substring(getImages!.indexOf(',') + 1);
+        print("DATA HEREEEEEE: ${getImages}");
+      }
+
+      Uint8List decodedImage = base64.decode(getImages!);
+
+      // Verify that the decoded data is not null
+      if (decodedImage.isNotEmpty) {
+        return decodedImage;
+      } else {
+        print('Decoded image is empty');
+        return null;
+      }
+    } catch (e) {
+      print('Error decoding image: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Explore',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Center(
+          child: Text(
+            'EXPLORE PAGE',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+        ),
         backgroundColor: Colors.lightGreen.shade700,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              // Add code to sign out here
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => signIn()),
+              );
+            },
+          ),
+        ],
+        automaticallyImplyLeading: false,
       ),
+      backgroundColor: Colors.white,
       body: ListView(
         children: <Widget>[
           buildSectionTitle(context, 'Explore'),
@@ -65,60 +181,58 @@ class ExplorePage extends StatelessWidget {
               ),
             ],
           ),
+          // Additional sections can be added as needed
           buildSectionTitle(context, 'You might like these'),
-          Row(
-            children: [
-              Expanded(
-                child: buildPlaceItem('Kopi Chendana'),
-              ),
-              Expanded(
-                child: buildPlaceItem('Taman Botanikal'),
-              ),
-              // Add more items here
-            ],
-          ),
+          _buildGridView(service ?? []), // Ensure service is not null
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore, color: Colors.black,),
+            icon: Icon(Icons.explore, color: Colors.black),
             label: 'Explore',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite,  color: Colors.black,),
+            icon: Icon(Icons.favorite, color: Colors.black),
             label: 'Favorites',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code,  color: Colors.black,),
+            icon: Icon(Icons.qr_code, color: Colors.black),
             label: 'QrCode',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard,  color: Colors.black,),
+            icon: Icon(Icons.card_giftcard, color: Colors.black),
             label: 'Reward',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person,  color: Colors.black,),
+            icon: Icon(Icons.person, color: Colors.black),
             label: 'Account',
           ),
         ],
-        onTap: (index){
+        onTap: (index) {
           // Handle item tap
           switch (index) {
-            case 2: // Index of the QR code icon
+            case 2:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QrScanner(user: user,), // Your QrScanner page
+                  builder: (context) => QrScanner(user: widget.user),
                 ),
               );
               break;
-          // Add more cases for other items if needed
-            case 3: // Index of the QR code icon
+            case 3:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RewardPage(user: user,), // Your QrScanner page
+                  builder: (context) => RewardPage(user: widget.user),
+                ),
+              );
+              break;
+            case 4:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => updateProfilePage(user: widget.user),
                 ),
               );
               break;
@@ -128,184 +242,93 @@ class ExplorePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+
+
+  Widget buildSectionTitle(BuildContext context, String title) {
+    return Row(
+      children: [
+        Container(
+          margin: EdgeInsets.all(10),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.headline6,
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildFeaturedDestinations() {
-    return Container(
-      height: 200,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildDestinationCard('Paris', 'assets/paris.jpg'),
-          _buildDestinationCard('New York', 'assets/new_york.jpg'),
-          _buildDestinationCard('Tokyo', 'assets/tokyo.jpg'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDestinationCard(String destination, String imagePath) {
+  Widget buildCategoryItem(String title) {
     return Card(
-      margin: EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              destination,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+      child: ListTile(
+        title: Text(title),
+      ),
+    );
+  }
+
+  Widget _buildGridView(List<tourismService> services) {
+    return Container(
+      height: 500, // Set an appropriate height
+      child: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, // Number of columns in the grid
+          crossAxisSpacing: 8.0, // Spacing between columns
+          mainAxisSpacing: 8.0, // Spacing between rows
+        ),
+        itemCount: services.length,
+        itemBuilder: (context, index) {
+          tourismService service = services[index];
+          Uint8List? imageBytes = _loadImage(index);
+
+          return GestureDetector(
+            onTap: () {
+              // Add navigation logic if needed
+            },
+            child: Card(
+              elevation: 5.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Container(
+                width: double.infinity,
+                height: 250,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (imageBytes != null)
+                      Image.memory(
+                        imageBytes,
+                        height: 100, // Adjusted image height
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            service.companyName ?? '',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text('Start Hour: ${service.businessStartHour ?? ''}'),
+                          Text('End Hour: ${service.businessEndHour ?? ''}'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategories() {
-    return Container(
-      height: 80,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildCategoryCard('Restaurants', Icons.restaurant),
-          _buildCategoryCard('Hotels', Icons.hotel),
-          _buildCategoryCard('Attractions', Icons.location_on),
-          _buildCategoryCard('Shopping', Icons.shopping_cart),
-          // Add more categories as needed
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(String category, IconData icon) {
-    return Card(
-      margin: EdgeInsets.all(8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 30),
-          SizedBox(height: 4),
-          Text(category),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNearbyPlaces() {
-    return Container(
-      height: 200,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildNearbyPlaceCard('Local Park', 'assets/MelakaGo.png'),
-          _buildNearbyPlaceCard('Museum', 'assets/MelakaGo.png'),
-          _buildNearbyPlaceCard('Shopping Mall', 'assets/MelakaGo.png'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNearbyPlaceCard(String place, String imagePath) {
-    return Card(
-      margin: EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              place,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExploreOnMapButton() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          // Add logic to navigate to the map screen
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => MapScreen()));
+          );
         },
-        child: Text('Explore on Map'),
       ),
     );
   }
 
-  Widget _buildScanQr(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          // Add logic to navigate to the map screen
-          Navigator.push(context, MaterialPageRoute(builder: (context) => QrScanner(user: user,)));
-        },
-        child: Text('Get Your Quiz Here'),
-      ),
-    );
-  }
-}
-
-Widget buildCategoryItem(String title) {
-  return Card(
-    child: ListTile(
-      title: Text(title),
-    ),
-  );
-}
-
-Widget buildSectionTitle(BuildContext context, String title) {
-  return Container(
-    margin: EdgeInsets.all(10),
-    child: Text(
-      title,
-      style: Theme.of(context).textTheme.headline6,
-    ),
-  );
-}
 
 
-Widget buildPlaceItem(String title) {
-  return Card(
-    child: ListTile(
-      leading: CircleAvatar(
-        child: Text(title[0]),
-      ),
-      title: Text(title),
-    ),
-  );
 }

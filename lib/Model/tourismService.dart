@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:melakago/Model/tourismServiceImage.dart';
+
 import '../Controller/request_controller.dart';
 
 class tourismService {
@@ -21,8 +23,31 @@ class tourismService {
   String? businessDescription;
   int? tsId;
   int? isDelete;
+  tourismServiceImage? TourismServiceImage;
 
-  tourismService({ this.tourismServiceId,
+  tourismService(
+    this.tourismServiceId,
+    this.companyName,
+    this.companyAddress,
+    this.businessContactNumber,
+    this.email,
+    this.businessStartHour,
+    this.businessEndHour,
+    this.faxNumber,
+    this.instagram,
+    this.xTwitter,
+    this.thread,
+    this.facebook,
+    this.businessLocation,
+    this.starRating,
+    this.businessDescription,
+    this.tsId,
+    this.isDelete,
+    this.TourismServiceImage
+  );
+
+  tourismService.getService(
+    this.tourismServiceId,
     this.companyName,
     this.companyAddress,
     this.businessContactNumber,
@@ -39,7 +64,7 @@ class tourismService {
     this.businessDescription,
     this.tsId,
     this.isDelete
-  });
+  );
 
 
   tourismService.getId(
@@ -53,7 +78,7 @@ class tourismService {
       );
 
   tourismService.fromJson(Map<String, dynamic> json)
-      : tourismServiceId = json['tourismServiceId'] as dynamic?,
+      : tourismServiceId = int.tryParse(json['tourismServiceId'] ?? '') ?? 0,
         companyName = json['companyName'] as String? ?? '',
         companyAddress = json['companyAddress'] as String? ?? '',
         businessContactNumber = json['businessContactNumber'] as String? ?? '',
@@ -65,10 +90,15 @@ class tourismService {
         xTwitter = json['xTwitter'] as String? ?? '',
         facebook = json['facebook'] as String? ?? '',
         businessLocation = json['businessLocation'] as String? ?? '',
-        starRating = json['starRating'] as dynamic?,
+        starRating = int.tryParse(json['starRating'] ?? '') ?? 0,
         businessDescription = json['businessDescription'] as String? ?? '',
-        tsId = json['tsId'] as dynamic?,
-        isDelete = json['isDelete'] as dynamic?;
+        tsId = int.tryParse(json['tsId'] ?? '') ?? 0,
+        isDelete = int.tryParse(json['isDelete'] ?? '') ?? 0,
+        TourismServiceImage = tourismServiceImage.forImage(
+          int.tryParse(json['imageId'] ?? '') ?? 0,
+          json['image'] as String? ?? '',
+        );
+
 
   //toJson will be automatically called by jsonEncode when necessary
   Map<String, dynamic> toJson() => {
@@ -89,6 +119,7 @@ class tourismService {
     'businessDescription': businessDescription,
     'tsId': tsId,
     'isDelete': isDelete,
+    'TourismServiceImage': TourismServiceImage,
   };
 
   Future<bool> saveService() async {
@@ -122,6 +153,25 @@ class tourismService {
       return false;
     }
   }
+
+Future<List<tourismService>> loadImages() async {
+    List<tourismService> result = [];
+
+    RequestController req = RequestController(path: "/api/getImage.php");
+    req.setBody(toJson());
+    await req.get();
+    if(req.status() == 200 && req.result() != null){
+        for (var item in req.result()) {
+          result.add(tourismService.fromJson(item));
+          print("Result Have Been Added");
+        }
+    }else{
+      print('Failed to fetch data');
+    }
+    return result;
+}
+
+
 
 
 }

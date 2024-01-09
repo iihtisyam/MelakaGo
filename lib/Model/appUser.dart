@@ -143,16 +143,16 @@ class appUser {
     }
   }
 
-  Future<bool> updatePoints(int additionalPoints) async {
+  Future<bool> updatePoints(int newTotalPoints) async {
     RequestController req = RequestController(path: "/api/updateTotalPoints.php");
-    Map<String, dynamic> data = {"appUserId": appUserId, "points": additionalPoints};
+    Map<String, dynamic> data = {"appUserId": appUserId, "points": newTotalPoints};
     req.setBody(data);
 
     await req.put();
 
     if (req.status() == 200) {
       // Points updated successfully
-      points = points! + additionalPoints;
+      points = newTotalPoints;
       return true;
     } else {
       // Failed to update points
@@ -160,4 +160,20 @@ class appUser {
     }
   }
 
+  Future<bool> updateProfile() async {
+    RequestController req = RequestController(path: "/api/appuser.php");
+    req.setBody({"appUserId": appUserId, "nickName": nickName,
+      "phoneNumber": phoneNumber, "email": email, "password": password });
+    await req.put();
+    if (req.status() == 400) {
+      return false;
+    } else if (req.status() == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
 }
+

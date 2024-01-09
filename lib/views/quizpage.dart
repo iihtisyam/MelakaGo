@@ -38,17 +38,10 @@ class _quizPageState extends State<quizPage> {
   int totalTimeTaken = 0;
   List<String> answerQuiz=[];
   List<int> timeEachQuestion=[];
-
- /* List<DateTime> startTimeList = [];
-  List<DateTime> endTimeList = [];*/
-
   DateTime WholeStartTime=DateTime.now();
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   DateTime WholeEndTime = DateTime.now();
-
-
-
   int questionId = 0;
   String questionText = '';
   String answerOption1 = '';
@@ -58,12 +51,9 @@ class _quizPageState extends State<quizPage> {
   String correctAnswer = '';
   int point = 0;
   int qrId = 0;
-
   final List<quizQuestion> quiz = [];
-
-
-  tourismService _tourismService = tourismService();
   String? companyName = '';
+  bool quizCompleted = false;
 
 
 
@@ -160,6 +150,10 @@ class _quizPageState extends State<quizPage> {
 
     // int timeTaken = getTimeTakenInSeconds();
     // b WholeEndTime = DateTime.now();
+    int newTotalPoints = widget.user.points! + totalPointQuiz;
+    if (quizCompleted) {
+      return;
+    }
 
     showDialog(
       context: context,
@@ -185,17 +179,10 @@ class _quizPageState extends State<quizPage> {
           actions: [
             TextButton(
               onPressed: () async {
-                // Reset the quiz
-               /* Navigator.pop(context);
-                setState(() {
-                  questionIndex = 0;
-                  score = 0;
-                  secondsRemaining = 30;
-                });*/
-                startTimer(); // Start the timer for the first question
-                // Check if all questions have been answered
-                  // Calculate endTime or get it from your logic
-                  // Get appUserId from your user object or other logic
+
+                //Navigator.pop(context);
+                quizCompleted = true; // Set the flag to true after completion
+
                   int appUserId = widget.user.appUserId!;
 
                   touristQuizSession quizSession = touristQuizSession
@@ -243,18 +230,13 @@ class _quizPageState extends State<quizPage> {
                           print('Error saving session detail: $e');
                         }
                       }
-                      int appUserId = widget.user.appUserId!;
-                      int totalPoints = totalPointQuiz;
-
-                      bool pointsUpdated = await widget.user.updatePoints(totalPoints);
-
-                      if (pointsUpdated) {
-                        print('User points updated successfully');
-                      } else {
-                        print('Failed to update user points');
-                      }
+                      //update user points
+                      await updatePoints(newTotalPoints);
                     }
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ExplorePage(user: widget.user)));
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => ExplorePage(user: widget.user)),
+                    );
                   }
                   },
               child: Text('Done'),
@@ -263,6 +245,17 @@ class _quizPageState extends State<quizPage> {
         );
       },
     );
+  }
+
+  Future<void> updatePoints(int additionalPoints) async {
+    int appUserId = widget.user.appUserId!;
+    bool pointsUpdated = await widget.user.updatePoints(additionalPoints);
+
+    if (pointsUpdated) {
+      print('User points updated successfully');
+    } else {
+      print('Failed to update user points');
+    }
   }
 
   String removeDecimalNumbers(DateTime dateTime) {

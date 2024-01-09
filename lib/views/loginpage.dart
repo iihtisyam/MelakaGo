@@ -131,10 +131,11 @@ class _LoginScreenState extends State<signIn> {
         title: Center(
           child: const Text(
             'Welcome To MelakaGo',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.0),
           ),
         ),
         backgroundColor: Colors.lightGreen.shade700,
+        leading: Container(),
       ),
       body: SingleChildScrollView(
         child: Center(
