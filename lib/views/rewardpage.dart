@@ -279,6 +279,7 @@ class RewardItem extends StatelessWidget {
       : super(key: key);
 
 
+
   void showClaimCodeDialog(BuildContext context) {
     // Generate claimCode by concatenating rewardCode and appUserId
     String claimCode = '${reward.rewardCode}$appUserId';

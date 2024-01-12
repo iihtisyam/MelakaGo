@@ -136,7 +136,7 @@ class Redemption {
     } catch (e) {
       // Handle error
       print('Error loading available rewards: $e');
-    }
+    }`
   }
 
   @override

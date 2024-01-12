@@ -10,6 +10,7 @@ import 'package:melakago/views/rewardpage.dart';
 import '../Model/tourismService.dart';
 import '../Model/tourismServiceImage.dart';
 import '../Model/appUser.dart';
+import 'detailPage.dart';
 import 'qr_scanner.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -296,7 +297,13 @@ class _ExplorePageState extends State<ExplorePage> {
 
           return GestureDetector(
             onTap: () {
-              // Add navigation logic if needed
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => detailPage(service: service, imageBytes:
+                  _loadImage(index)),
+                ),
+              );
             },
             child: Card(
               elevation: 5.0,
