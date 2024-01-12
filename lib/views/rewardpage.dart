@@ -80,101 +80,62 @@ class _RewardPageState extends State<RewardPage> {
   void claimReward(Reward reward) async {
     try {
       int appUserId = widget.user.appUserId!;
-      int totalPoints = totalRedeemedPoints;
+      int totalPoints = widget.user.points ?? 0;
 
-      bool pointsDeduct = await widget.user.deductPoints(totalPoints);
-
-      if (widget.user.points != null && reward.rewardPoint != null) {
+      if (totalPoints >= (reward.rewardPoint ?? 0)) {
         // Deduct points and update totalRedeemedPoints
-        totalPoints = (widget.user.points! - reward.rewardPoint!).clamp(0, double.infinity).toInt();
-        totalRedeemedPoints += reward.rewardPoint!;
+        totalPoints -= reward.rewardPoint ?? 0;
+        //totalRedeemedPoints += reward.rewardPoint!;
+        bool pointsDeducted = await widget.user.deductPoints(totalPoints);
         //getDateRedeemed = "${dateRedeemed.day}-${dateRedeemed.month}-${dateRedeemed.year}";
 
-        Redemption redemption = Redemption
-          (rewardId: reward.rewardId, appUserId: appUserId, pointsRedeemed: totalRedeemedPoints,
-            dateRedeemed: dateRedeemed, expirationDate: expirationDate, status: status);
+        if (pointsDeducted) {
+          // Points deducted successfully, proceed with redemption
+          Redemption redemption = Redemption(
+            rewardId: reward.rewardId,
+            appUserId: appUserId,
+            pointsRedeemed: totalRedeemedPoints + reward.rewardPoint!,
+            dateRedeemed: dateRedeemed,
+            expirationDate: expirationDate,
+            status: status,
+          );
 
         if (await redemption.saveRedeem()){
           print("Redemption Successful");
+
+          // Update local state after successful redemption
+          setState(() {
+            totalRedeemedPoints += reward.rewardPoint!;
+            rewards.remove(reward);
+            claimedRewards.add(reward);
+          });
+
+          // Update user points after successful redemption
+          widget.user.points = totalPoints;
+
+          // Display a snackbar or another form of feedback to the user
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Congratulations! You have claimed the reward.'),
+            ),
+          );
+        }else {
+          // Handle redemption save failure
+          print("Failed to save redemption.");
         }
-
       } else {
-        // Handle the case where either widget.user.points or reward.rewardPoint is null
-        print('Warning: widget.user.points or reward.rewardPoint is null.');
-        return; // or throw an exception, depending on your error-handling strategy
+          // Handle points deduction failure
+          print("Failed to deduct points.");
+        }
+      } else {
+        // Handle the case where the user doesn't have enough points
+        print('Insufficient points to redeem this reward.');
       }
-      // You should replace the following logic with your actual redemption logic
-      // For now, let's assume that the redemption process is successful
-
-      // You may also want to handle points deduction or any other backend operation
-      // For example: await Redemption.redeemReward(widget.user.appUserId, reward.rewardId);
-
-      // Remove the claimed reward from available rewards
-      setState(() {
-        rewards.remove(reward);
-        claimedRewards.add(reward);
-      });
-
-      // Display a snackbar or another form of feedback to the user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Congratulations! You have claimed the reward.'),
-        ),
-      );
-      // Navigate to RedeemedRewardsPage after successfully claiming the reward
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
-        ),
-      );
     } catch (e) {
       print('Error claiming reward: $e');
       // Handle errors gracefully, e.g., display an error message to the user
     }
   }
-
-  /*void claimReward(Reward reward) async {
-    // Assuming redeeming involves an asynchronous operation
-    try {
-      if (widget.user.points >= reward.rewardPoint) {
-        // Assuming redeeming involves an asynchronous operation
-        // You may need to adjust the redeemReward method based on your backend logic
-        await Redemption.redeemReward(widget.user.appUserId, reward.rewardId);
-
-        // Perform the redemption operation here, update UI accordingly
-      setState(() {
-        rewards.remove(reward);
-        claimedRewards.add(reward);
-        widget.user.points -= reward.rewardPoint ?? 0;
-        totalRedeemedPoints += reward.rewardPoint ?? 0;
-      });
-
-      // Display a snackbar or another form of feedback to the user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Congratulations! You have claimed the reward.'),
-        ),
-      );
-      } else {
-        // Display an error message if the user doesn't have enough points
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Insufficient points to redeem this reward.'),
-          ),
-        );
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
-        ),
-      );
-    } catch (e) {
-      print('Error claiming reward: $e');
-      // Handle errors gracefully, e.g., display an error message to the user
-    }
-  }*/
 
   //@override
   Widget build(BuildContext context) {
@@ -197,7 +158,7 @@ class _RewardPageState extends State<RewardPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              height: 30,
+              height: 45,
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -210,13 +171,13 @@ class _RewardPageState extends State<RewardPage> {
                     Icon(
                       Icons.star,
                       color: Colors.white,
-                      size: 18,
+                      size: 35,
                     ),
-                    SizedBox(width: 4),
+                    SizedBox(width: 8),
                     Text(
                       'Total Points: ${widget.user.points}',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 20,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -283,10 +244,13 @@ class _RewardPageState extends State<RewardPage> {
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
+                // Store the user before navigating
+                appUser user = widget.user;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ClaimedRewardsPage(claimedRewards: claimedRewards),
+                    builder: (context) => ClaimedRewardsPage(appUserId: user.appUserId!, claimedRewards: claimedRewards),
                   ),
                 );
               },
@@ -304,92 +268,34 @@ class _RewardPageState extends State<RewardPage> {
     // Add your logic here, such as redeeming the reward or navigating to a detailed view
     // fetchRewards(); // If you want to fetch rewards again after tapping
   }
+
 }
 
 class RewardItem extends StatelessWidget {
   final Reward reward;
-  final VoidCallback onRedeem;
+  final int appUserId;
 
-  const RewardItem({
-    required this.reward,
-    required this.onRedeem,
-  });
+  const RewardItem({Key? key, required this.reward, required this.appUserId})
+      : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: ListTile(
-        title: Text(reward.rewardName),
-        subtitle: Text('${reward.rewardPoint} Points'),
-        trailing: ElevatedButton(
-          onPressed: onRedeem,
-          child: Text('Redeem'),
-        ),
-      ),
-    );
-  }
-}
 
-/*import 'dart:async';
-import 'package:flutter/material.dart';
-import '../Model/redemption.dart';
-import '../Model/appUser.dart';
+  void showClaimCodeDialog(BuildContext context) {
+    // Generate claimCode by concatenating rewardCode and appUserId
+    String claimCode = '${reward.rewardCode}$appUserId';
 
-class RewardPage extends StatefulWidget {
-  late appUser user;
-
-  RewardPage({Key? key, required appUser user}) : super(key: key) {
-    this.user = user;
-  }
-
-  @override
-  State<RewardPage> createState() => _RewardPageState();
-}
-
-class _RewardPageState extends State<RewardPage> {
-  late List<Redemption> rewards;
-  int totalPoints = 500; // Example total points
-  int totalRedeemedPoints = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    rewards = []; // Initialize rewards list
-    fetchRewards(); // Fetch rewards data
-  }
-
-/*void fetchRewards() async {
-    // Assume you have a method to fetch rewards from the server
-    // In this example, I'm using a dummy method Reward.fetchRewards
-    try {
-      List<Redemption> fetchedRewards = await Redemption().loadReward();
-      setState(() {
-        rewards = fetchedRewards;
-      });
-    } catch (e) {
-      // Handle errors or failed API requests
-      print('Error fetching rewards: $e');
-    }
-  }
-
-  void redeemReward(Redemption reward) async {
-    // Logic to redeem the selected reward
-    // In this example, I'm just adding the points to totalRedeemedPoints
-    setState(() {
-      totalRedeemedPoints += reward.pointsRedeemed ?? 0;
-    });
-
-    // Optionally, you can add logic to update the redeemed reward status in the database
-    // You might need to have a method like reward.redeem() in your Reward class
-
-    // Display a confirmation dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Reward Redeemed'),
-          content: Text('Congratulations! You have redeemed the reward.'),
+          title: Text('Claim Code'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Reward: ${reward.rewardName}'),
+              Text('Claim Code: $claimCode'),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -405,329 +311,17 @@ class _RewardPageState extends State<RewardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          children: [
-            const SizedBox(height: 8),
-            const Text(
-              'My Rewards',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.lightGreen.shade700,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              height: 30,
-              child: Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Total Points: $totalPoints',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Available Rewards',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: rewards.length,
-                itemBuilder: (context, index) {
-                  Redemption reward = rewards[index];
-                  return RewardItem(
-                    reward: reward,
-                    onRedeem: () => redeemReward(reward),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // Logic to redeem all selected rewards (if any)
-                // Replace this with your logic if needed
-                print('Total Redeemed Points: $totalRedeemedPoints');
-              },
-              child: Text('Redeem Selected Rewards'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RewardItem extends StatelessWidget {
-  final Redemption reward;
-  final VoidCallback onRedeem;
-
-  const RewardItem({required this.reward, required this.onRedeem});
-
-  @override
-  Widget build(BuildContext context) {
     return Card(
       elevation: 2,
       child: ListTile(
-        title: Text(reward.rewardName ?? ''),
-        subtitle: Text('${reward.pointsRedeemed} Points'),
-        trailing: ElevatedButton(
-          onPressed: onRedeem,
-          child: Text('Redeem'),
-        ),
-      ),
-    );
-  }
-}*/
-
-/*import 'package:flutter/material.dart';
-import '../Model/redemption.dart';
-
-void main() => runApp(MyApp());*/
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DefaultTabController(
-        length: 2,
-        child: RewardRedemptionScreen(),
-      ),
-    );
-  }
-}
-
-class RewardRedemptionScreen extends StatelessWidget {
-  // Example total points
-  final int totalPoints = 500;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-            children: [
-              const SizedBox(height: 8), // Add some spacing
-              const Text(
-                'My Reward',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        backgroundColor: Colors.lightGreen.shade700,
-        bottom: TabBar(
-          tabs: [
-            Tab(icon: Icon(Icons.card_giftcard), text: 'Available Rewards'),
-            Tab(icon: Icon(Icons.history), text: 'My Reward History'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        children: [
-          // Wrap the Available Rewards Tab with a ListView
-          ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Display the total points earned in a green SizedBox
-                    SizedBox(
-                      height: 30,
-                      child: Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Total Points: $totalPoints',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Available Rewards',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    // Display available rewards, you can replace this with your own logic to fetch and display rewards
-                    AvailableRewardsScreen(),
-                    RewardHistoryScreen(),
-                    /*RewardItem(name: 'Discount Coupon', points: 100),
-                    RewardItem(name: 'Free Item', points: 200),
-                    RewardItem(name: 'Exclusive Access', points: 150),
-                    // Additional rewards
-                    RewardItem(name: 'Free Parking', points: 100),
-                    RewardItem(name: 'Zoo Melaka', points: 500),
-                    RewardItem(name: 'Taman Buaya', points: 400),*/
-                    SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Add logic to redeem the selected reward
-                        // This is a placeholder, replace it with your actual redemption logic
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Reward Redeemed'),
-                              content: Text('Congratulations! You have redeemed the reward.'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('OK'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Text('Redeem Reward'),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          // My Reward History Tab
-          RewardHistoryScreen(),
-        ],
-      ),
-    );
-  }
-}
-
-
-class RewardItem extends StatelessWidget {
-  final String name;
-  final int points;
-
-  const RewardItem({required this.name, required this.points});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: ListTile(
-        title: Text(name),
-        subtitle: Text('$points Points'),
-        trailing: Icon(Icons.arrow_forward_ios),
+        title: Text(reward.rewardName),
+        subtitle: Text('${reward.rewardPoint} Points'),
         onTap: () {
-          // Add logic to handle reward item selection
-          // This is a placeholder, replace it with your actual reward selection logic
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Reward Selected'),
-                content: Text('You have selected $name. Are you sure you want to redeem it?'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Add logic to redeem the selected reward
-                      // This is a placeholder, replace it with your actual redemption logic
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Redeem'),
-                  ),
-                ],
-              );
-            },
-          );
+          // Show claim code when tapped
+          showClaimCodeDialog(context);
         },
       ),
     );
   }
 }
 
-class RewardHistoryScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Reward History',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 16),
-          // Display reward history, you can replace this with your own logic to fetch and display history
-          ListTile(
-            title: Text('Discount Coupon'),
-            subtitle: Text('Redeemed on 2023-01-01'),
-          ),
-          ListTile(
-            title: Text('Free Item'),
-            subtitle: Text('Redeemed on 2023-02-15'),
-          ),
-          ListTile(
-            title: Text('Exclusive Access'),
-            subtitle: Text('Redeemed on 2023-03-30'),
-          ),
-        ],
-      ),
-    );
-  }
-}*/

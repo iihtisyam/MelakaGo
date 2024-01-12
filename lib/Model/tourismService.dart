@@ -24,6 +24,7 @@ class tourismService {
   int? tsId;
   int? isDelete;
   tourismServiceImage? TourismServiceImage;
+  String? serviceCategory;
 
   tourismService(
     this.tourismServiceId,
@@ -97,7 +98,8 @@ class tourismService {
         TourismServiceImage = tourismServiceImage.forImage(
           int.tryParse(json['imageId'] ?? '') ?? 0,
           json['image'] as String? ?? '',
-        );
+        ),
+        serviceCategory = json['serviceCategory'] as String? ?? '';
 
 
   //toJson will be automatically called by jsonEncode when necessary
@@ -120,6 +122,7 @@ class tourismService {
     'tsId': tsId,
     'isDelete': isDelete,
     'TourismServiceImage': TourismServiceImage,
+    'serviceCategory': serviceCategory,
   };
 
   Future<bool> saveService() async {
@@ -162,6 +165,7 @@ Future<List<tourismService>> loadImages() async {
     await req.get();
     if(req.status() == 200 && req.result() != null){
         for (var item in req.result()) {
+          item['serviceCategory'] = item['serviceCategory'] ?? '';
           result.add(tourismService.fromJson(item));
           print("Result Have Been Added");
         }
@@ -170,8 +174,5 @@ Future<List<tourismService>> loadImages() async {
     }
     return result;
 }
-
-
-
 
 }

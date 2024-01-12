@@ -43,6 +43,7 @@ class _ExplorePageState extends State<ExplorePage> {
   int imageId = 0;
   String image = '';
   String? getImages = '';
+  int selectedTsId = 0;
 
   final List<tourismService> service = [];
 
@@ -122,6 +123,12 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void updateTsId(int tsId) {
+    setState(() {
+      selectedTsId = tsId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,30 +161,30 @@ class _ExplorePageState extends State<ExplorePage> {
           Row(
             children: [
               Expanded(
-                child: buildCategoryItem('Attractions'),
+                child: buildCategoryItem('Attractions', 6),
               ),
               Expanded(
-                child: buildCategoryItem('Lodging'),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: buildCategoryItem('Foods'),
-              ),
-              Expanded(
-                child: buildCategoryItem('Activities'),
+                child: buildCategoryItem('Lodging', 3),
               ),
             ],
           ),
           Row(
             children: [
               Expanded(
-                child: buildCategoryItem('Shopping'),
+                child: buildCategoryItem('Foods', 4),
               ),
               Expanded(
-                child: buildCategoryItem('Transport'),
+                child: buildCategoryItem('Activities', 5),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: buildCategoryItem('Shopping', 1),
+              ),
+              Expanded(
+                child: buildCategoryItem('Transport', 2),
               ),
             ],
           ),
@@ -258,15 +265,22 @@ class _ExplorePageState extends State<ExplorePage> {
     );
   }
 
-  Widget buildCategoryItem(String title) {
+  Widget buildCategoryItem(String title, int tsId) {
     return Card(
       child: ListTile(
         title: Text(title),
+        onTap: () {
+          updateTsId(tsId);
+        },
       ),
     );
   }
 
   Widget _buildGridView(List<tourismService> services) {
+    List<tourismService> filteredServices = services.where((service) {
+      return selectedTsId == 0 || service.serviceCategory == selectedTsId;
+    }).toList();
+
     return Container(
       height: 500, // Set an appropriate height
       child: GridView.builder(
@@ -275,9 +289,9 @@ class _ExplorePageState extends State<ExplorePage> {
           crossAxisSpacing: 8.0, // Spacing between columns
           mainAxisSpacing: 8.0, // Spacing between rows
         ),
-        itemCount: services.length,
+        itemCount: filteredServices.length,
         itemBuilder: (context, index) {
-          tourismService service = services[index];
+          tourismService service = filteredServices[index];
           Uint8List? imageBytes = _loadImage(index);
 
           return GestureDetector(
