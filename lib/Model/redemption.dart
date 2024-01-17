@@ -6,20 +6,28 @@ class Redemption {
   int? redeemId;
   int? rewardId;
   int? appUserId;
+  String? claimCode;
   int? pointsRedeemed;
   String? dateRedeemed;
   String? expirationDate;
   int? status;
+  Reward? reward;
 
   Redemption({
     this.redeemId,
     this.rewardId,
     this.appUserId,
+    this.claimCode,
     this.pointsRedeemed,
     this.dateRedeemed,
     this.expirationDate,
     this.status,
+    this.reward
   });
+
+  Redemption.getByAppUser(
+      this.appUserId,
+      );
 
   /*factory Redemption.fromJson(Map<String, dynamic> json) {
     return Redemption(
@@ -37,44 +45,28 @@ class Redemption {
       : redeemId = int.tryParse(json['redeemId'] ?? '') ?? 0,
         rewardId = int.tryParse(json['rewardId'] ?? '') ?? 0,
         appUserId = int.tryParse(json['appUserId'] ?? '') ?? 0,
+        claimCode = json['claimCode'] as String? ??"",
         pointsRedeemed = int.tryParse(json['pointsRedeemed'] ?? '') ?? 0,
         dateRedeemed = json['dateRedeemed'] as String? ??"",
         expirationDate = json['expirationDate'] as String? ??"",
-        status = int.tryParse(json['status'] ?? '') ?? 0;
+        status = int.tryParse(json['status'] ?? '') ?? 0,
+        reward = Reward.getRewardName(
+            json['rewardName'] as String? ??"",
+            json['tnc'] as String? ??"",
+        );
 
   Map<String, dynamic> toJson() =>
       {
         'redeemId': redeemId,
         'rewardId': rewardId,
         'appUserId': appUserId,
+        'claimCode':claimCode,
         'pointsRedeemed': pointsRedeemed,
         'dateRedeemed': dateRedeemed,
         'expirationDate': expirationDate,
         'status': status,
       };
 
-  /*Future<void> claimReward(int userId, Reward reward) async {
-    // Extract the rewardId from the Reward object
-    final int rewardId = reward.rewardId ?? 0;
-
-    // Perform HTTP request to redeem the reward
-    final response = await http.post(
-      Uri.parse('http://10.131.78.161/redeem.php'),
-      body: {
-        'userId': userId.toString(),
-        'rewardId': rewardId.toString(),
-      },
-    );
-
-    if (response.statusCode == 200) {
-      // If reward redemption is successful
-      print('Reward redeemed successfully.');
-    } else {
-      // If the server returns an error response,
-      // throw an exception or handle accordingly.
-      print('Failed to redeem reward.');
-    }
-  }*/
 
   Future<bool> saveRedeem() async {
     RequestController req = RequestController(path: "/api/redeem.php");
@@ -93,65 +85,33 @@ class Redemption {
       return true;
     }
   }
+
+
+  Future<List<Redemption>> claimedRewards() async {
+    List<Redemption> result = [];
+
+    RequestController req = RequestController(path: "/api/getClaimedReward.php");
+    req.setBody(toJson());
+    await req.post();
+    if (req.status() == 200 && req.result() != null) {
+
+      List<dynamic> responseData = req.result();
+
+      if (responseData.isNotEmpty) {
+        for (var item in responseData) {
+          result.add(Redemption.fromJson(item));
+          print("Result:  ${result}");
+        }
+      } else {
+        print('Response data is empty.');
+        // Handle the case when the response data is empty
+      }
+    } else {
+      print('Failed to fetch data.');
+      // Handle the case when the request fails
+    }
+
+    return result;
+  }
 }
 
-/*static Future<List<Redemption>> fetchRedeemRewards() async {
-    final response = await http.get(Uri.parse("/api/redeem.php"));
-
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Redemption().fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load redeem rewards');
-    }
-  }
-
-  Future<bool> redeem() async {
-    try {
-      RequestController req = RequestController(path: "/api/redeem.php");
-      req.setBody(toJson());
-
-      await req.post();
-
-      if (req.status() == 200) {
-        // Optionally, you can handle any response data here
-        print('Reward redemption successful');
-        return true;
-      } else {
-        print('Failed to redeem reward. Status code: ${req.status()}');
-        return false;
-      }
-    } catch (e) {
-      print('Exception while redeeming reward: $e');
-      return false;
-    }
-  }
-
-  Future<void> _loadAvailableRewards() async {
-    try {
-      List<Redemption> rewards = await Redemption.fetchRedeemRewards();
-      setState(() {
-        availableRewards = rewards;
-      });
-    } catch (e) {
-      // Handle error
-      print('Error loading available rewards: $e');
-    }`
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Your code to display available rewards
-    return ListView.builder(
-      itemCount: availableRewards.length,
-      itemBuilder: (context, index) {
-        return RewardItem(
-          name: availableRewards[index].name,
-          points: availableRewards[index].points,
-        );
-      },
-    );
-  }*/
-
-
-// Add any additional methods as needed

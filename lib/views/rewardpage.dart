@@ -1,22 +1,13 @@
 import 'dart:async';
+import 'dart:convert'; // Add this import for jsonEncode and jsonDecode
 import 'package:flutter/material.dart';
-import 'package:melakago/views/claimedreward.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Model/redemption.dart';
 import '../Model/appUser.dart';
 import 'package:melakago/Model/reward.dart';
 import 'package:intl/intl.dart';
 
-class RewardPage extends StatefulWidget {
-  //const RewardPage({super.key});
-  late appUser user;
-
-  RewardPage({Key? key, required appUser user}) : super(key: key){
-    this.user=user;
-  }
-
-  @override
-  State<RewardPage> createState() => _RewardPageState();
-}
+import 'claimedrewards.dart';
 
 class DateUtils {
   static String getCurrentDate() {
@@ -25,8 +16,18 @@ class DateUtils {
   }
 }
 
-class _RewardPageState extends State<RewardPage> {
+class RewardPage extends StatefulWidget {
+  late appUser user;
 
+  RewardPage({Key? key, required appUser user}) : super(key: key) {
+    this.user = user;
+  }
+
+  @override
+  State<RewardPage> createState() => RewardPageState();
+}
+
+class RewardPageState extends State<RewardPage> {
   int rewardIndex = 0;
   int rewardId = 0;
   String rewardName = '';
@@ -36,8 +37,6 @@ class _RewardPageState extends State<RewardPage> {
   int redeemId = 0;
   int appUserId = 0;
   int pointsRedeemed = 0;
-  //DateTime dateRedeemed=DateTime.now();
-  //DateTime expirationDate=DateTime.now();
   int status = 0;
   DateTime now = DateTime.now();
   String dateRedeemed = DateUtils.getCurrentDate();
@@ -45,18 +44,17 @@ class _RewardPageState extends State<RewardPage> {
 
   int totalRedeemedPoints = 0;
 
-  List<Reward> rewards = []; // Use List<Reward> to store rewards
+  List<Reward> rewards = [];
   List<Reward> claimedRewards = [];
+
+  // SharedPreferences key for storing claimed rewards
+  static const String claimedRewardsKey = 'claimed_rewards';
 
   Future<List<Reward>> reward() async {
     int rewardPoint = widget.user.points!;
-
-    Reward reward = Reward(
-      rewardId,
-      rewardName,
+    Reward reward = Reward.getReward(
       rewardPoint,
-      rewardCode,
-      tnc,
+      widget.user.appUserId
     );
 
     List<Reward> fetchedRewards = await reward.fetchRewards();
@@ -64,17 +62,41 @@ class _RewardPageState extends State<RewardPage> {
     setState(() {
       rewards.clear();
       rewards.addAll(fetchedRewards);
-      print("rewardId: ${rewards[1].rewardId}");
     });
     return fetchedRewards;
-
-
   }
 
   @override
   void initState() {
     super.initState();
+    // Load claimed rewards when the page initializes
+    loadClaimedRewards().then((loadedClaimedRewards) {
+      setState(() {
+        claimedRewards = loadedClaimedRewards;
+      });
+    });
+
     reward(); // Fetch rewards data when the page initializes
+  }
+
+  Future<List<Reward>> loadClaimedRewards() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? claimedRewardsJson = prefs.getStringList(claimedRewardsKey);
+
+    if (claimedRewardsJson != null) {
+      List<Reward> loadedClaimedRewards =
+      claimedRewardsJson.map((json) => Reward.fromJson(jsonDecode(json))).toList();
+      return loadedClaimedRewards;
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> saveClaimedRewards(List<Reward> claimedRewards) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> claimedRewardsJson =
+    claimedRewards.map((reward) => jsonEncode(reward.toJson())).toList();
+    prefs.setStringList(claimedRewardsKey, claimedRewardsJson);
   }
 
   void claimReward(Reward reward) async {
@@ -83,61 +105,53 @@ class _RewardPageState extends State<RewardPage> {
       int totalPoints = widget.user.points ?? 0;
 
       if (totalPoints >= (reward.rewardPoint ?? 0)) {
-        // Deduct points and update totalRedeemedPoints
         totalPoints -= reward.rewardPoint ?? 0;
-        //totalRedeemedPoints += reward.rewardPoint!;
         bool pointsDeducted = await widget.user.deductPoints(totalPoints);
-        //getDateRedeemed = "${dateRedeemed.day}-${dateRedeemed.month}-${dateRedeemed.year}";
 
         if (pointsDeducted) {
-          // Points deducted successfully, proceed with redemption
+          String claimCode='';
+          claimCode = reward.rewardCode! + appUserId.toString();
           Redemption redemption = Redemption(
             rewardId: reward.rewardId,
             appUserId: appUserId,
+            claimCode: claimCode,
             pointsRedeemed: totalRedeemedPoints + reward.rewardPoint!,
             dateRedeemed: dateRedeemed,
             expirationDate: expirationDate,
             status: status,
           );
 
-        if (await redemption.saveRedeem()){
-          print("Redemption Successful");
+          if (await redemption.saveRedeem()) {
+            setState(() {
+              totalRedeemedPoints += reward.rewardPoint!;
+              rewards.remove(reward);
+              claimedRewards.add(reward);
+            });
 
-          // Update local state after successful redemption
-          setState(() {
-            totalRedeemedPoints += reward.rewardPoint!;
-            rewards.remove(reward);
-            claimedRewards.add(reward);
-          });
+            widget.user.points = totalPoints;
 
-          // Update user points after successful redemption
-          widget.user.points = totalPoints;
+            await saveClaimedRewards(claimedRewards);
 
-          // Display a snackbar or another form of feedback to the user
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Congratulations! You have claimed the reward.'),
-            ),
-          );
-        }else {
-          // Handle redemption save failure
-          print("Failed to save redemption.");
-        }
-      } else {
-          // Handle points deduction failure
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Congratulations! You have claimed the reward.'),
+              ),
+            );
+          } else {
+            print("Failed to save redemption.");
+          }
+        } else {
           print("Failed to deduct points.");
         }
       } else {
-        // Handle the case where the user doesn't have enough points
         print('Insufficient points to redeem this reward.');
       }
     } catch (e) {
       print('Error claiming reward: $e');
-      // Handle errors gracefully, e.g., display an error message to the user
     }
   }
 
-  //@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -225,32 +239,14 @@ class _RewardPageState extends State<RewardPage> {
                 },
               ),
             ),
-            /*Expanded(
-              child: ListView.builder(
-                itemCount: result.length,
-                itemBuilder: (context, index) {
-                  Reward reward = result[index];
-                  return GestureDetector(
-                    onTap: () => onRewardTap(reward),
-                    child: Container(
-                      // Your Reward UI goes here
-                      // Replace this Container with your actual Reward widget
-                      child: Text(reward.rewardName),
-                    ),
-                  );
-                },
-              ),
-            ),*/
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                // Store the user before navigating
                 appUser user = widget.user;
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ClaimedRewardsPage(appUserId: user.appUserId!, claimedRewards: claimedRewards),
+                    builder: (context) => ClaimedRewardsPages(user: user),
                   ),
                 );
               },
@@ -263,13 +259,10 @@ class _RewardPageState extends State<RewardPage> {
   }
 
   void onRewardTap(Reward reward) {
-    // Perform actions when a reward is tapped
     print('Reward tapped: ${reward.rewardName}');
-    // Add your logic here, such as redeeming the reward or navigating to a detailed view
-    // fetchRewards(); // If you want to fetch rewards again after tapping
   }
-
 }
+
 
 class RewardItem extends StatelessWidget {
   final Reward reward;
@@ -315,7 +308,7 @@ class RewardItem extends StatelessWidget {
     return Card(
       elevation: 2,
       child: ListTile(
-        title: Text(reward.rewardName),
+        title: Text(reward.rewardName!),
         subtitle: Text('${reward.rewardPoint} Points'),
         onTap: () {
           // Show claim code when tapped
@@ -325,4 +318,3 @@ class RewardItem extends StatelessWidget {
     );
   }
 }
-
