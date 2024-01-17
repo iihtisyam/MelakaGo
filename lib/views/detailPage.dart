@@ -8,7 +8,9 @@ class detailPage extends StatefulWidget {
   final tourismService service;
   final Uint8List? imageBytes;
 
-  detailPage({required this.service, required this.imageBytes});
+  detailPage({
+    required this.service,
+    required this.imageBytes});
 
   @override
   _detailPage createState() => _detailPage();

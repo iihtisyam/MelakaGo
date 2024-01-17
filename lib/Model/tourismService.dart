@@ -157,22 +157,38 @@ class tourismService {
     }
   }
 
-Future<List<tourismService>> loadImages() async {
+  // Updated static method to load images
+  static Future<List<tourismService>> loadImagesStatic() async {
     List<tourismService> result = [];
 
     RequestController req = RequestController(path: "/api/getImage.php");
-    req.setBody(toJson());
+    req.setBody({});
     await req.get();
-    if(req.status() == 200 && req.result() != null){
-        for (var item in req.result()) {
-          item['serviceCategory'] = item['serviceCategory'] ?? '';
-          result.add(tourismService.fromJson(item));
-          print("Result Have Been Added");
-        }
-    }else{
+    if (req.status() == 200 && req.result() != null) {
+      for (var item in req.result()) {
+        item['serviceCategory'] = item['serviceCategory'] ?? '';
+        result.add(tourismService.fromJson(item));
+        print("Result Have Been Added");
+      }
+    } else {
       print('Failed to fetch data');
     }
     return result;
-}
+  }
 
+
+  // Updated method to load filtered tourism services based on tsId
+  static Future<List<tourismService>> loadFilteredTourism(int tsId) async {
+    List<tourismService> filteredTourism = [];
+
+    // Fetch all tourism services using the static method
+    List<tourismService> allTourismServices = await loadImagesStatic();
+
+    // Filter tourism services based on tsId
+    filteredTourism = allTourismServices
+        .where((service) => service.tsId == tsId)
+        .toList();
+
+    return filteredTourism;
+  }
 }

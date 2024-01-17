@@ -10,6 +10,7 @@ import 'package:melakago/views/rewardpage.dart';
 import '../Model/tourismService.dart';
 import '../Model/tourismServiceImage.dart';
 import '../Model/appUser.dart';
+import 'categoryPage.dart';
 import 'detailPage.dart';
 import 'qr_scanner.dart';
 
@@ -77,7 +78,7 @@ class _ExplorePageState extends State<ExplorePage> {
       isDelete,
     );
 
-    List<tourismService> loadedTourism = await tourism.loadImages();
+    List<tourismService> loadedTourism = await tourismService.loadImagesStatic();
 
     setState(() {
       service.clear();
@@ -136,7 +137,7 @@ class _ExplorePageState extends State<ExplorePage> {
       appBar: AppBar(
         title: Center(
           child: Text(
-            'EXPLORE PAGE',
+            'MelakaGo',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
         ),
@@ -268,14 +269,30 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Widget buildCategoryItem(String title, int tsId) {
     return Card(
-      child: ListTile(
-        title: Text(title),
+      child: GestureDetector(
         onTap: () {
-          updateTsId(tsId);
+          print('Tapped on category: $title with tsId: $tsId');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryPage(
+                user: widget.user,
+                tsId: tsId,  // Pass the correct tsId here
+                services: service,
+                imageBytes: _loadImage(tsId), // You may need to adjust how imageBytes is loaded
+              ),
+            ),
+          );
         },
+        child: ListTile(
+          title: Text(title),
+        ),
       ),
     );
   }
+
+
+
 
   Widget _buildGridView(List<tourismService> services) {
     List<tourismService> filteredServices = services.where((service) {
@@ -283,12 +300,12 @@ class _ExplorePageState extends State<ExplorePage> {
     }).toList();
 
     return Container(
-      height: 500, // Set an appropriate height
+      height: 400, // Set an appropriate height
       child: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, // Number of columns in the grid
           crossAxisSpacing: 8.0, // Spacing between columns
-          mainAxisSpacing: 8.0, // Spacing between rows
+          mainAxisSpacing: 50.0, // Spacing between rows
         ),
         itemCount: filteredServices.length,
         itemBuilder: (context, index) {
@@ -300,26 +317,28 @@ class _ExplorePageState extends State<ExplorePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => detailPage(service: service, imageBytes:
-                  _loadImage(index)),
+                  builder: (context) => detailPage(
+                    service: service,
+                    imageBytes: _loadImage(index),
+                  ),
                 ),
               );
             },
             child: Card(
-              elevation: 5.0,
+              elevation: 40.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Container(
                 width: double.infinity,
-                height: 250,
+                height: 400,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (imageBytes != null)
                       Image.memory(
                         imageBytes,
-                        height: 100, // Adjusted image height
+                        height: 90, // Adjusted image height
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
@@ -331,11 +350,13 @@ class _ExplorePageState extends State<ExplorePage> {
                           Text(
                             service.companyName ?? '',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          SizedBox(height:3),
                           Text('Start Hour: ${service.businessStartHour ?? ''}'),
+                          SizedBox(height:3),
                           Text('End Hour: ${service.businessEndHour ?? ''}'),
                         ],
                       ),
@@ -349,7 +370,6 @@ class _ExplorePageState extends State<ExplorePage> {
       ),
     );
   }
-
 
 
 }
