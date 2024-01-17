@@ -153,7 +153,6 @@ class _updateProfilePageState extends State<updateProfilePage> {
               buildTextField("Country", countryController),
               buildTextField("Phone Number", phoneNumberController),
               buildTextField("Email", emailController),
-              buildTextField("Password", passwordController),
 
               SizedBox(height: 10),
               ElevatedButton(
@@ -175,6 +174,9 @@ class _updateProfilePageState extends State<updateProfilePage> {
   }
 
   Widget buildTextField(String label, TextEditingController controller) {
+    bool isReadOnly = label == "Date of Birth" || label == "Country"
+        || label == "First Name" || label == "Last Name";
+
     return Container(
       width: double.infinity,
       child: Padding(
@@ -197,7 +199,8 @@ class _updateProfilePageState extends State<updateProfilePage> {
               ),
               child: TextField(
                 controller: controller,
-                readOnly: true,
+                readOnly: isReadOnly,
+                // readOnly: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                 ),

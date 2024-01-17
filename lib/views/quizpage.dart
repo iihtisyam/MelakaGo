@@ -39,6 +39,7 @@ class _quizPageState extends State<quizPage> {
   List<String> answerQuiz=[];
   List<int> timeEachQuestion=[];
   DateTime WholeStartTime=DateTime.now();
+  DateTime start = DateTime.now();
   DateTime startTime = DateTime.now();
   DateTime endTime = DateTime.now();
   DateTime WholeEndTime = DateTime.now();
@@ -81,6 +82,7 @@ class _quizPageState extends State<quizPage> {
     List<quizQuestion> loadedQuestions = await question.loadQuestion();
 
     setState(() {
+
       quiz.clear();
       quiz.addAll(loadedQuestions);
       print("QUIZ: ${quiz[1].point}");
@@ -119,7 +121,7 @@ class _quizPageState extends State<quizPage> {
         // startTimeList.add(DateTime.now());
         startTimer();
       } else {
-        // Update WholeEndTime for the last question
+        // Update WholeEndTime only when the user completes the quiz
         WholeEndTime = DateTime.now();
         timer.cancel();
         _showScoreDialog();
@@ -128,10 +130,13 @@ class _quizPageState extends State<quizPage> {
   }
 
   int getTimeTakenInSeconds() {
-    // Calculate the total time taken from the start to the end of the quiz
-    totalTimeTaken = DateTime.now().difference(WholeStartTime).inSeconds;
+    DateTime end = DateTime.now();
+    // Calculate the total time taken from the start to the current question
+    totalTimeTaken = end.difference(start).inSeconds;
+    print('Time:${totalTimeTaken}');
     return totalTimeTaken;
   }
+
 
   void answerQuestion(String selectedAnswer) {
     setState(() {
@@ -148,12 +153,12 @@ class _quizPageState extends State<quizPage> {
 
   void _showScoreDialog() {
 
-    // int timeTaken = getTimeTakenInSeconds();
-    // b WholeEndTime = DateTime.now();
     int newTotalPoints = widget.user.points! + totalPointQuiz;
     if (quizCompleted) {
       return;
     }
+
+    totalTimeTaken = getTimeTakenInSeconds();
 
     showDialog(
       context: context,
@@ -164,16 +169,13 @@ class _quizPageState extends State<quizPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Your Score: $score out of ${quiz.length}'),
+
+            Text('Your Score: $score out of ${quiz.length}'),
               SizedBox(height: 8),
               Text('Time Taken: $totalTimeTaken seconds'),
               SizedBox(height: 8),
               Text('Your Total Points: $totalPointQuiz'),
               SizedBox(height: 8),
-            /*  Text('Start Time: $WholeStartTime'),
-              SizedBox(height: 8),
-              Text('End Time: $WholeEndTime'),*/
-
             ],
           ),
           actions: [
@@ -287,26 +289,6 @@ class _quizPageState extends State<quizPage> {
     return finalResult;
   }
 
-  /*void _AlertMessage(String msg) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Message"),
-          content: Text(msg),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-*/
 
   @override
   void initState() {
@@ -315,6 +297,7 @@ class _quizPageState extends State<quizPage> {
     QuizQuestion();
     startTimer(); // Start the timer for the first question
   }
+
 
   @override
   void dispose() {

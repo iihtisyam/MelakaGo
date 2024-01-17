@@ -176,7 +176,7 @@ class appUser {
   }
 
   Future<bool> updateProfile() async {
-    RequestController req = RequestController(path: "/api/appuser.php");
+    RequestController req = RequestController(path: "/api/updateprofile.php");
     req.setBody({"appUserId": appUserId, "nickName": nickName,
       "phoneNumber": phoneNumber, "email": email, "password": password });
     await req.put();
