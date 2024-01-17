@@ -64,14 +64,15 @@ class _detailPage extends State<detailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 90,
-        title: Center(
+        toolbarHeight: 50,
+        title: Align(
+          alignment: Alignment.centerLeft,
           child: Text(
             '${widget.service.companyName ?? ''}',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white,),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: SingleChildScrollView(
         child: Center(

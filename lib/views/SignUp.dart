@@ -322,9 +322,15 @@ class _signUpState extends State<signUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: const Text('Account Registration',
-            style: TextStyle(fontWeight: FontWeight.bold)),),
-        backgroundColor: Colors.lightGreen.shade700,
+        toolbarHeight: 90,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Account Registration',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28, color: Colors.white,),
+          ),
+        ),
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -332,7 +338,7 @@ class _signUpState extends State<signUp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children:[
               SizedBox(height: 40),
-              Text("Lets Become a MelakaGoer !",
+              Text("Lets Become a MelakaGoer!",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               SizedBox(height: 15),
               /*Image.network('https://img.fkkkkreepik.com/premium-vector/vector-'
@@ -639,7 +645,7 @@ class _signUpState extends State<signUp> {
               ElevatedButton(
                 onPressed: _addTourist,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700, // Set your desired background color here
+                  primary: Colors.black, // Set your desired background color here
                 ),
                 child: const Text('Sign up',
                     style: TextStyle(fontSize: 18.0,

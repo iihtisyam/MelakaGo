@@ -67,14 +67,15 @@ class _ClaimedRewardsPagesState extends State<ClaimedRewardsPages> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 90,
-        title: Center(
+        //toolbarHeight: 90,
+        title: Align(
+          alignment: Alignment.centerLeft,
           child: Text(
             'Claimed Rewards',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white,),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: ListView.builder(
         itemCount: rewards.length,

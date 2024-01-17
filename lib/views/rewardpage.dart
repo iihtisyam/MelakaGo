@@ -6,6 +6,9 @@ import '../Model/redemption.dart';
 import '../Model/appUser.dart';
 import 'package:melakago/Model/reward.dart';
 import 'package:intl/intl.dart';
+import 'package:melakago/views/home_view.dart';
+import 'package:melakago/views/qr_scanner.dart';
+import 'package:melakago/views/editProfile.dart';
 
 import 'claimedrewards.dart';
 
@@ -155,16 +158,14 @@ class RewardPageState extends State<RewardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          children: [
-            const SizedBox(height: 8),
-            const Text(
-              'My Rewards',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'My Rewards',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white,),
+          ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -172,11 +173,11 @@ class RewardPageState extends State<RewardPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              height: 45,
+              height: 40,
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.grey[400],
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -185,7 +186,7 @@ class RewardPageState extends State<RewardPage> {
                     Icon(
                       Icons.star,
                       color: Colors.white,
-                      size: 35,
+                      size: 25,
                     ),
                     SizedBox(width: 8),
                     Text(
@@ -229,7 +230,13 @@ class RewardPageState extends State<RewardPage> {
                               subtitle: Text('${reward.rewardPoint} Points'),
                               trailing: ElevatedButton(
                                 onPressed: () => claimReward(reward),
-                                child: Text('Claim'),
+                                child: Text('Claim',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -250,9 +257,86 @@ class RewardPageState extends State<RewardPage> {
                   ),
                 );
               },
-              child: Text('My Claimed Rewards'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.black, // Set the background color to black
+              ),
+              child: Text('My Claimed Rewards',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(vertical: 2.0),
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            // Set showSelectedLabels and showUnselectedLabels to false
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+            ),
+          ),// Adjust the vertical padding as needed
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, color: Colors.black),
+                label: 'Explore',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.qr_code, color: Colors.black),
+                label: 'QrCode',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.card_giftcard, color: Colors.black),
+                label: 'Reward',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, color: Colors.black),
+                label: 'Account',
+              ),
+            ],
+            onTap: (index) {
+              // Handle item tap
+              switch (index) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExplorePage(user: widget.user),
+                    ),
+                  );
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QrScanner(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RewardPage(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 3:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => updateProfilePage(user: widget.user),
+                    ),
+                  );
+                  break;
+              }
+            },
+          ),
         ),
       ),
     );

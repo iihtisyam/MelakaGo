@@ -128,21 +128,30 @@ class _LoginScreenState extends State<signIn> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 90,
-        title: Center(
-          child: const Text(
-            'Welcome To MelakaGo',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26.0),
+        title: Padding(
+          padding: EdgeInsets.only(left: 10.0), // Adjust the left padding as needed
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'MelakaGo',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35, color: Colors.white,),
+            ),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
-        leading: Container(),
+        backgroundColor: Colors.lightGreen[700],
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 40),
+              SizedBox(height: 20),
+              Text(
+                "Welcome Back, MelakaGoer!",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              SizedBox(height: 20),
               ClipOval(
                 child: Image.asset(
                   'assets/MelakaGo.png',
@@ -234,9 +243,9 @@ class _LoginScreenState extends State<signIn> {
               TextButton(
                 onPressed: _forgetPassword,
                 child: Text(
-                  'Forget Password?',
+                  'Forgot Password?',
                   style: TextStyle(
-                    color: Colors.blue,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -244,7 +253,7 @@ class _LoginScreenState extends State<signIn> {
               ElevatedButton(
                 onPressed: _checkUser,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700, // Set your desired background color here
+                  primary: Colors.black, // Set your desired background color here
                 ),
                 child: const Text('Login',
                     style: TextStyle(fontSize: 18.0,
@@ -258,7 +267,7 @@ class _LoginScreenState extends State<signIn> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700,
+                  primary: Colors.black,
                 ),
                 child: const Text(
                   'Sign Up',

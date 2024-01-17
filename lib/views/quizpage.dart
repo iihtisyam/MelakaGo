@@ -314,7 +314,7 @@ class _quizPageState extends State<quizPage> {
           children: [
             const Text(
               'Quiz Questions',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35, color: Colors.white,),
             ),
             Text(
               // Use companyName obtained from fetchData
@@ -323,7 +323,7 @@ class _quizPageState extends State<quizPage> {
             ),
           ],
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: Container(
         child: SingleChildScrollView(

@@ -144,13 +144,14 @@ class _PasswordResetPageState extends State<PasswordResetPage> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 90,
-        title: Center(
-          child: const Text(
-            'Reset User Password',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35.0),
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Reset Password',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28, color: Colors.white,),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[800],
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -298,7 +299,7 @@ class _PasswordResetPageState extends State<PasswordResetPage> {
               ElevatedButton(
                 onPressed: _checkUser,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.lightGreen.shade700, // Set your desired background color here
+                  backgroundColor: Colors.black, // Set your desired background color here
                 ),
                 child: const Text('Reset Password',
                     style: TextStyle(fontSize: 18.0,

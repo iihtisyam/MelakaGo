@@ -28,6 +28,23 @@ class _CategoryPageState extends State<CategoryPage> {
   String getImages='';
   String title='';
 
+  String _formatTime(String? time) {
+    if (time == null) {
+      return '';
+    }
+
+    // Split the time into hours, minutes, and seconds
+    List<String> parts = time.split(':');
+
+    // Extract hours and minutes
+    String hours = parts[0];
+    String minutes = parts[1];
+
+    // Return the formatted time as HH:mm
+    return '$hours:$minutes';
+  }
+
+
   int count=0;
   @override
   void initState() {
@@ -116,16 +133,14 @@ class _CategoryPageState extends State<CategoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          children: [
-            const SizedBox(height: 8),
-             Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white,),
+          ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
 
       body: Padding(
@@ -194,10 +209,11 @@ class _CategoryPageState extends State<CategoryPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height:3),
-                          Text('Start Hour: ${service.businessStartHour ?? ''}'),
-                          SizedBox(height:3),
-                          Text('End Hour: ${service.businessEndHour ?? ''}'),
+                          SizedBox(height: 3),
+                          Text('Start Time: ${_formatTime(service.businessStartHour)}'),
+                          SizedBox(height: 3),
+                          Text('End Time: ${_formatTime(service.businessEndHour)}'),
+
                         ],
                       ),
                     ),

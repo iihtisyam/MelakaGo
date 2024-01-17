@@ -51,6 +51,23 @@ class _ExplorePageState extends State<ExplorePage> {
 
   String nickName = '';
 
+  String _formatTime(String? time) {
+    if (time == null) {
+      return '';
+    }
+
+    // Split the time into hours, minutes, and seconds
+    List<String> parts = time.split(':');
+
+    // Extract hours and minutes
+    String hours = parts[0];
+    String minutes = parts[1];
+
+    // Return the formatted time as HH:mm
+    return '$hours:$minutes';
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -135,13 +152,15 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
+        toolbarHeight: 90,
+        title: Align(
+          alignment: Alignment.centerLeft,
           child: Text(
             'MelakaGo',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 35, color: Colors.white,),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
         actions: [
           IconButton(
             icon: Icon(Icons.exit_to_app),
@@ -195,58 +214,73 @@ class _ExplorePageState extends State<ExplorePage> {
           _buildGridView(service ?? []), // Ensure service is not null
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore, color: Colors.black),
-            label: 'Explore',
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(vertical: 2.0),
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            // Set showSelectedLabels and showUnselectedLabels to false
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+            ),
+          ),// Adjust the vertical padding as needed
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, color: Colors.black),
+                label: 'Explore',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.qr_code, color: Colors.black),
+                label: 'QrCode',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.card_giftcard, color: Colors.black),
+                label: 'Reward',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, color: Colors.black),
+                label: 'Account',
+              ),
+            ],
+            onTap: (index) {
+              // Handle item tap
+              switch (index) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExplorePage(user: widget.user),
+                    ),
+                  );
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QrScanner(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RewardPage(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 3:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => updateProfilePage(user: widget.user),
+                    ),
+                  );
+                  break;
+              }
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite, color: Colors.black),
-            label: 'Favorites',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code, color: Colors.black),
-            label: 'QrCode',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_giftcard, color: Colors.black),
-            label: 'Reward',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.black),
-            label: 'Account',
-          ),
-        ],
-        onTap: (index) {
-          // Handle item tap
-          switch (index) {
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QrScanner(user: widget.user),
-                ),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RewardPage(user: widget.user),
-                ),
-              );
-              break;
-            case 4:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => updateProfilePage(user: widget.user),
-                ),
-              );
-              break;
-          }
-        },
+        ),
       ),
     );
   }
@@ -260,7 +294,10 @@ class _ExplorePageState extends State<ExplorePage> {
           margin: EdgeInsets.all(10),
           child: Text(
             title,
-            style: Theme.of(context).textTheme.headline6,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
@@ -268,6 +305,33 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Widget buildCategoryItem(String title, int tsId) {
+    IconData iconData;
+
+    // Assign icon based on the category title
+    switch (title) {
+      case 'Attractions':
+        iconData = Icons.location_on;
+        break;
+      case 'Lodging':
+        iconData = Icons.hotel;
+        break;
+      case 'Foods':
+        iconData = Icons.restaurant;
+        break;
+      case 'Activities':
+        iconData = Icons.directions_run;
+        break;
+      case 'Shopping':
+        iconData = Icons.shopping_cart;
+        break;
+      case 'Transport':
+        iconData = Icons.directions_car;
+        break;
+    // Add more cases for other categories if needed
+      default:
+        iconData = Icons.category;
+    }
+
     return Card(
       child: GestureDetector(
         onTap: () {
@@ -277,19 +341,21 @@ class _ExplorePageState extends State<ExplorePage> {
             MaterialPageRoute(
               builder: (context) => CategoryPage(
                 user: widget.user,
-                tsId: tsId,  // Pass the correct tsId here
+                tsId: tsId,
                 services: service,
-                imageBytes: _loadImage(tsId), // You may need to adjust how imageBytes is loaded
+                imageBytes: _loadImage(tsId),
               ),
             ),
           );
         },
         child: ListTile(
+          leading: Icon(iconData), // Icon displayed before the title
           title: Text(title),
         ),
       ),
     );
   }
+
 
 
 
@@ -354,10 +420,11 @@ class _ExplorePageState extends State<ExplorePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height:3),
-                          Text('Start Hour: ${service.businessStartHour ?? ''}'),
-                          SizedBox(height:3),
-                          Text('End Hour: ${service.businessEndHour ?? ''}'),
+                          SizedBox(height: 3),
+                          Text('Start Time: ${_formatTime(service.businessStartHour)}'),
+                          SizedBox(height: 3),
+                          Text('End Time: ${_formatTime(service.businessEndHour)}'),
+
                         ],
                       ),
                     ),

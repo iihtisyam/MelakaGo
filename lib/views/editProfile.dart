@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:melakago/views/home_view.dart';
+import 'package:melakago/views/qr_scanner.dart';
+import 'package:melakago/views/rewardpage.dart';
 
 
 import '../../Model/appUser.dart';
@@ -114,14 +116,14 @@ class _updateProfilePageState extends State<updateProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 90,
-        title: Center(
-          child: const Text(
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
             'Profile Update',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white,),
           ),
         ),
-        backgroundColor: Colors.lightGreen.shade700,
+        backgroundColor: Colors.lightGreen[700],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -130,12 +132,6 @@ class _updateProfilePageState extends State<updateProfilePage> {
             mainAxisSize: MainAxisSize.min, // Set mainAxisSize to min
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Let's Become a MelakaGoer!",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-              SizedBox(height: 10),
-
               ClipOval(
                 child: Image.asset(
                   'assets/MelakaGo.png',
@@ -158,15 +154,83 @@ class _updateProfilePageState extends State<updateProfilePage> {
               ElevatedButton(
                 onPressed: _editAdmin,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.lightGreen.shade700,
+                  primary: Colors.black,
                 ),
                 child: const Text(
                   'Edit Profile',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ),
               SizedBox(height: 10),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.symmetric(vertical: 2.0),
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            // Set showSelectedLabels and showUnselectedLabels to false
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+            ),
+          ),// Adjust the vertical padding as needed
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, color: Colors.black),
+                label: 'Explore',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.qr_code, color: Colors.black),
+                label: 'QrCode',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.card_giftcard, color: Colors.black),
+                label: 'Reward',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, color: Colors.black),
+                label: 'Account',
+              ),
+            ],
+            onTap: (index) {
+              // Handle item tap
+              switch (index) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExplorePage(user: widget.user),
+                    ),
+                  );
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QrScanner(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RewardPage(user: widget.user),
+                    ),
+                  );
+                  break;
+                case 3:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => updateProfilePage(user: widget.user),
+                    ),
+                  );
+                  break;
+              }
+            },
           ),
         ),
       ),
