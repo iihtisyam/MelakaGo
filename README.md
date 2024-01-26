@@ -47,3 +47,22 @@ The development methodology chosen for the MelakaGo application is Agile, which 
 	   interesting places to travel such as A’Famosa, Muzium Tentera and any
 	   historical places to learn about the history behind it. There will be a quiz
 	   related to the places that can be answered by them.
+
+# Database
+## Database Used
+- mySql Workbench
+
+## List of Tables
+1. TourismService
+2. TourismServiceImage
+3. TourismServiceCode
+4. QrSpot
+5. QuizQuestion
+6. TouristQuizSession
+7. TouristQuizSessionDetail
+8. AppUser
+9. UserRole
+10. RedeemReward
+11. Reward
+12. CompanyReward
+
