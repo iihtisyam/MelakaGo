@@ -15,3 +15,8 @@
 
 - Tourism websites lack personalization which provides only generic information. Users struggled to find tailored suggestions, affecting their overall trip planning.
 - Limited visibility on traditional tourism platforms affected the economic growth.
+
+# Objectives
+
+- To provide personalized information regarding tourist destinations, attractions, lodging, dining and activities.
+- To showcase local businesses and foster tourism to strengthen the local economy.
