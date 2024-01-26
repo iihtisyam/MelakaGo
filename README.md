@@ -27,3 +27,23 @@
 The development methodology chosen for the MelakaGo application is Agile, which emphasizes flexibility, collaboration, and incremental progress. This approach ensures adaptability to changing requirements and industry dynamics. Agile benefits include flexibility in adjusting project requirements, improved collaboration among team members and stakeholders, and early issue detection to reduce project failure risks. Following agile principles involves defining the vision and goals, creating a prioritized product backlog, planning short sprints with clear goals, encouraging close collaboration during development, conducting regular meetings, and incorporating feedback through reviews and demos. The process concludes with retrospective meetings for continuous improvement and thorough documentation to maintain project knowledge.
 
 
+# Module and Scope
+
+1. Registration Module
+2. Login Module
+3. Participate Activity (Quiz)
+   - The tourist will be allowed to answer the quiz questions given related
+	   to those places from the QR code scanned to collect the points.
+4. Collect Points
+   - The tourist has the right to collect the points to gain benefits such as
+     free ticket parking based on the T&C provided.
+5. Claim Reward
+   - The user has the right to claim an available reward to gain benefits
+	   such as free ticket parking based on the T&C provided depending on the
+	   tourist’s collected points.
+6. Update Profile
+7. QR Scanner
+   - The user will be allowed to scan the provided QR code at the
+	   interesting places to travel such as A’Famosa, Muzium Tentera and any
+	   historical places to learn about the history behind it. There will be a quiz
+	   related to the places that can be answered by them.
