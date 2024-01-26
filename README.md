@@ -66,3 +66,13 @@ The development methodology chosen for the MelakaGo application is Agile, which 
 11. Reward
 12. CompanyReward
 
+# Flow Using MelakaGo Application
+1. Signup / Login 
+2. Find the interesting tourism spot
+3. at the tourism spot, if there is any qr code on fun fact's board, scan the qr to answer the quiz
+4. Quiz Question session started
+5. collect points once finished
+6. claim the available reward
+7. redeem at the related company offered
+
+
