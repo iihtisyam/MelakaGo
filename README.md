@@ -20,3 +20,9 @@
 
 - To provide personalized information regarding tourist destinations, attractions, lodging, dining and activities.
 - To showcase local businesses and foster tourism to strengthen the local economy.
+
+# Developement Methodology: Agile Methodology
+
+The development methodology chosen for the MelakaGo application is Agile, which emphasizes flexibility, collaboration, and incremental progress. This approach ensures adaptability to changing requirements and industry dynamics. Agile benefits include flexibility in adjusting project requirements, improved collaboration among team members and stakeholders, and early issue detection to reduce project failure risks. Following agile principles involves defining the vision and goals, creating a prioritized product backlog, planning short sprints with clear goals, encouraging close collaboration during development, conducting regular meetings, and incorporating feedback through reviews and demos. The process concludes with retrospective meetings for continuous improvement and thorough documentation to maintain project knowledge.
+
+
